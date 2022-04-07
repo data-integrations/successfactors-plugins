@@ -45,18 +45,18 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-
 /**
  * This {@code SuccessFactorsSchemaGenerator} contains all the logic to generate the different set of schemas.
  * e.g.
  * - schema with default (non-navigation) properties
  * - schema with default and given expanded navigation properties
  * - schema with given selective properties
- *
+ * <p>
+ * <p>
  * Note:
- *  - Default Property: A statically declared Property on an Entity. The value of a default property is a primitive or
- *                      complex type.
- *  - Navigation Property: A property of an Entry that represents a Link from the Entry to one or more related Entries.
+ * - Default Property: A statically declared Property on an Entity. The value of a default property is a primitive or
+ * complex type.
+ * - Navigation Property: A property of an Entry that represents a Link from the Entry to one or more related Entries.
  */
 public class SuccessFactorsSchemaGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(SuccessFactorsSchemaGenerator.class);
@@ -65,6 +65,9 @@ public class SuccessFactorsSchemaGenerator {
   private static final Map<String, Schema> SCHEMA_TYPE_MAPPING;
   private static final Integer DEFAULT_PRECISION = 15;
   private static final Integer DEFAULT_SCALE = 2;
+  private static final String DEFAULT_PROPERTY = "Default property";
+  private static final String NAV_PROPERTY_SEPARATOR = "/";
+  private static final String PROPERTY_SEPARATOR = ",";
 
   static {
     Map<String, Schema> dataTypeMap = new HashMap<>();
@@ -77,6 +80,7 @@ public class SuccessFactorsSchemaGenerator {
     dataTypeMap.put(SuccessFactorsDataTypes.FLOAT, Schema.of(Schema.Type.FLOAT));
     // These are default values for precision and scale - these values are used if precision, scale are not provided.
     dataTypeMap.put(SuccessFactorsDataTypes.DECIMAL, Schema.decimalOf(DEFAULT_PRECISION, DEFAULT_SCALE));
+
     dataTypeMap.put(SuccessFactorsDataTypes.STRING, Schema.of(Schema.Type.STRING));
 
     dataTypeMap.put(SuccessFactorsDataTypes.BINARY, Schema.of(Schema.Type.BYTES));
@@ -90,11 +94,6 @@ public class SuccessFactorsSchemaGenerator {
     SCHEMA_TYPE_MAPPING = Collections.unmodifiableMap(dataTypeMap);
   }
 
-  private static final String DEFAULT_PROPERTY = "Default property";
-
-  private static final String NAV_PROPERTY_SEPARATOR = "/";
-  private static final String PROPERTY_SEPARATOR = ",";
-
   private final SuccessFactorsEntityProvider successFactorsServiceHelper;
 
   public SuccessFactorsSchemaGenerator(SuccessFactorsEntityProvider successFactorsServiceHelper) {
@@ -104,11 +103,11 @@ public class SuccessFactorsSchemaGenerator {
   /**
    * Build schema with all the default (non-navigation) properties for the given entity name.
    *
-   * @param entityName   service entity name
+   * @param entityName service entity name
    * @return {@code Schema}
    * @throws SuccessFactorsServiceException throws in following two cases
-   *        1. if no default property were found in the given entity name,
-   *        2. if fails at apache olingo processing.
+   *                                        1. if no default property were found in the given entity name,
+   *                                        2. if fails at apache olingo processing.
    */
   public Schema buildDefaultOutputSchema(String entityName) throws SuccessFactorsServiceException {
 
@@ -135,7 +134,7 @@ public class SuccessFactorsSchemaGenerator {
    * @return list of {@code SuccessFactorsColumnMetadata} or empty list in case of invalid entity name.
    * @throws EdmException any apache olingo processing exception
    */
-  private List<SuccessFactorsColumnMetadata> buildDefaultColumns(String entityName) throws EdmException {
+  public List<SuccessFactorsColumnMetadata> buildDefaultColumns(String entityName) throws EdmException {
 
     EdmEntityType entityType = successFactorsServiceHelper.getEntityType(entityName);
     List<String> propList = successFactorsServiceHelper.getEntityPropertyList(entityType);
@@ -154,7 +153,7 @@ public class SuccessFactorsSchemaGenerator {
    *
    * @param entityType service entity type
    * @param propList   list of required property name for the given entity type.
-   * @return  list of {@code SuccessFactorsColumnMetadata} or empty list in case of invalid entity name.
+   * @return list of {@code SuccessFactorsColumnMetadata} or empty list in case of invalid entity name.
    * @throws EdmException any apache olingo processing exception
    */
   private List<SuccessFactorsColumnMetadata> buildSuccessFactorsColumns(EdmEntityType entityType, List<String> propList)
@@ -182,7 +181,7 @@ public class SuccessFactorsSchemaGenerator {
         if (navEntityType != null) {
 
           List<SuccessFactorsColumnMetadata> navChild = buildSuccessFactorsColumns(navEntityType,
-                                                                             navEntityType.getPropertyNames());
+                                                                                   navEntityType.getPropertyNames());
 
           SuccessFactorsColumnMetadata navigationColumn = SuccessFactorsColumnMetadata.builder()
             .name(prop)
@@ -196,6 +195,31 @@ public class SuccessFactorsSchemaGenerator {
       }
     }
 
+    return successFactorsColumnDetailList;
+  }
+
+  /**
+   * @param entityName SAP SuccessFactors entity Name to fetch the non-navigational properties
+   * @return list of non-navigational properties
+   * @throws EdmException any apache olingo processing exception
+   */
+  public List<String> getNonNavigationalProperties(String entityName) throws EdmException {
+    EdmEntityType entityType = successFactorsServiceHelper.getEntityType(entityName);
+    List<String> propList = successFactorsServiceHelper.getEntityPropertyList(entityType);
+    List<String> successFactorsColumnDetailList = new ArrayList<>();
+    for (String prop : propList) {
+      EdmTyped type = entityType.getProperty(prop);
+      if (type instanceof EdmProperty) {
+        EdmProperty edmProperty = (EdmProperty) type;
+        List<EdmAnnotationAttribute> edmAnnotationAttributes = edmProperty.getAnnotations().getAnnotationAttributes();
+        for (EdmAnnotationAttribute edmAnnotationAttribute : edmAnnotationAttributes) {
+          if (edmAnnotationAttribute.getName().equals(SapAttributes.VISIBLE) && edmAnnotationAttribute.getText()
+            .equals("true")) {
+            successFactorsColumnDetailList.add(prop);
+          }
+        }
+      }
+    }
     return successFactorsColumnDetailList;
   }
 
@@ -239,6 +263,9 @@ public class SuccessFactorsSchemaGenerator {
           case SapAttributes.DISPLAY_FORMAT:
             successFactorsColumnDetailBuilder.displayFormat(sapAttributeText);
             break;
+          case SapAttributes.VISIBLE:
+            successFactorsColumnDetailBuilder.isVisible(Boolean.parseBoolean(sapAttributeText));
+            break;
           case SapAttributes.FILTER_RESTRICTION:
             successFactorsColumnDetailBuilder.filterRestrictions(sapAttributeText);
             break;
@@ -248,6 +275,7 @@ public class SuccessFactorsSchemaGenerator {
           case SapAttributes.LABEL:
             successFactorsColumnDetailBuilder.label(sapAttributeText);
             break;
+
         }
       });
     }
@@ -271,20 +299,22 @@ public class SuccessFactorsSchemaGenerator {
    * @param expandOption all the selective expanded property names
    * @return {@code Schema}
    * @throws SuccessFactorsServiceException throws in following two cases
-   *        1. if neither default nor expanded property were found in the given entity name,
-   *        2. if fails at apache olingo processing.
+   *                                        1. if neither default nor expanded property were found in the given entity
+   *                                        name,
+   *                                        2. if fails at apache olingo processing.
    */
   public Schema buildExpandOutputSchema(String entityName, String expandOption) throws SuccessFactorsServiceException {
     try {
       List<SuccessFactorsColumnMetadata> columnDetailList = buildDefaultColumns(entityName);
       if (columnDetailList.isEmpty()) {
         throw new SuccessFactorsServiceException(ResourceConstants.ERR_NO_COLUMN_FOUND.getMsgForKey(DEFAULT_PROPERTY,
-          entityName));
+                                                                                                    entityName));
       }
 
       List<SuccessFactorsColumnMetadata> expandColumnDetailList = buildExpandedEntity(entityName, expandOption);
       if (expandColumnDetailList.isEmpty()) {
         throw new SuccessFactorsServiceException(ResourceConstants.ERR_NO_COLUMN_FOUND.getMsgForKey(expandOption,
+
                                                                                                     entityName));
       }
 
@@ -487,8 +517,8 @@ public class SuccessFactorsSchemaGenerator {
    * @param selectOption all the selective property names
    * @return {@code Schema}
    * @throws SuccessFactorsServiceException throws in following two cases
-   *        1. if no selective property were found in the given entity name,
-   *        2. if fails at apache olingo processing.
+   *                                        1. if no selective property were found in the given entity name,
+   *                                        2. if fails at apache olingo processing.
    */
   public Schema buildSelectOutputSchema(String entityName, String selectOption) throws SuccessFactorsServiceException {
     try {
@@ -614,7 +644,7 @@ public class SuccessFactorsSchemaGenerator {
    * Build {@code SuccessFactorsColumnMetadata} for the provided navigation property.
    *
    * @param entityName service entity name
-   * @param navName can have navigation path
+   * @param navName    can have navigation path
    * @return {@code SuccessFactorsColumnMetadata} or null in case of invalid navigation property name
    * @throws EdmException any apache olingo processing exception.
    */

@@ -21,8 +21,10 @@ package io.cdap.plugin.successfactors.common.util;
 public class SapAttributes {
 
   public static final String DISPLAY_FORMAT = "display-format";
+  public static final String VISIBLE = "visible";
   public static final String FILTER_RESTRICTION = "filter-restriction";
   public static final String REQUIRED_IN_FILTER = "required-in-filter";
   public static final String LABEL = "label";
-  
+
 }
+

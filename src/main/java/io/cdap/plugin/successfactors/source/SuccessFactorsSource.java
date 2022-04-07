@@ -15,25 +15,43 @@
  */
 package io.cdap.plugin.successfactors.source;
 
+import com.google.gson.Gson;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
+import io.cdap.cdap.api.data.batch.Input;
 import io.cdap.cdap.api.data.format.StructuredRecord;
 import io.cdap.cdap.api.data.schema.Schema;
 import io.cdap.cdap.etl.api.FailureCollector;
 import io.cdap.cdap.etl.api.PipelineConfigurer;
+import io.cdap.cdap.etl.api.StageConfigurer;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
+import io.cdap.plugin.common.LineageRecorder;
+import io.cdap.plugin.common.SourceInputFormatProvider;
+import io.cdap.plugin.common.batch.JobUtils;
 import io.cdap.plugin.successfactors.common.exception.SuccessFactorsServiceException;
 import io.cdap.plugin.successfactors.common.exception.TransportException;
 import io.cdap.plugin.successfactors.common.util.ExceptionParser;
 import io.cdap.plugin.successfactors.common.util.ResourceConstants;
+import io.cdap.plugin.successfactors.common.util.SuccessFactorsUtil;
 import io.cdap.plugin.successfactors.source.config.SuccessFactorsPluginConfig;
+import io.cdap.plugin.successfactors.source.input.SuccessFactorsInputFormat;
+import io.cdap.plugin.successfactors.source.input.SuccessFactorsInputSplit;
+import io.cdap.plugin.successfactors.source.input.SuccessFactorsPartitionBuilder;
 import io.cdap.plugin.successfactors.source.service.SuccessFactorsService;
 import io.cdap.plugin.successfactors.source.transport.SuccessFactorsTransporter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.mapreduce.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
@@ -45,6 +63,9 @@ import javax.annotation.Nullable;
 @Description("Reads the SuccessFactors data which is exposed as OData services from SAP.")
 public class SuccessFactorsSource extends BatchSource<LongWritable, StructuredRecord, StructuredRecord> {
   public static final String NAME = "SuccessFactors";
+  public static final String OUTPUT_SCHEMA = "outputSchema";
+  private static final String SERVER_SIDE = "serverSide";
+  private static final Logger LOG = LoggerFactory.getLogger(SuccessFactorsSource.class);
   private final SuccessFactorsPluginConfig config;
 
   public SuccessFactorsSource(SuccessFactorsPluginConfig config) {
@@ -53,18 +74,40 @@ public class SuccessFactorsSource extends BatchSource<LongWritable, StructuredRe
 
   @Override
   public void configurePipeline(PipelineConfigurer pipelineConfigurer) {
-    FailureCollector failureCollector = pipelineConfigurer.getStageConfigurer().getFailureCollector();
+    StageConfigurer stageConfigurer = pipelineConfigurer.getStageConfigurer();
+    FailureCollector failureCollector = stageConfigurer.getFailureCollector();
     config.validatePluginParameters(failureCollector);
 
     if (config.isSchemaBuildRequired()) {
-      pipelineConfigurer.getStageConfigurer().setOutputSchema(getOutputSchema(failureCollector));
+      Schema schema = config.getSchema(failureCollector);
+      if (schema != null) {
+        stageConfigurer.setOutputSchema(schema);
+      } else {
+        stageConfigurer.setOutputSchema(getOutputSchema(failureCollector));
+      }
     } else {
-      pipelineConfigurer.getStageConfigurer().setOutputSchema(null);
+      stageConfigurer.setOutputSchema(null);
     }
   }
 
   @Override
   public void prepareRun(BatchSourceContext context) throws Exception {
+    Schema outputSchema = context.getOutputSchema();
+    if (outputSchema == null) {
+      outputSchema = getOutputSchema(context.getFailureCollector());
+    }
+
+    if (outputSchema == null) {
+      throw new IllegalArgumentException(ResourceConstants.ERR_MACRO_INPUT.getMsgForKeyWithCode());
+    }
+
+    FailureCollector collector = context.getFailureCollector();
+
+    configureJob(context, outputSchema);
+
+    emitLineage(context, outputSchema, config.getEntityName());
+
+    collector.getOrThrowException();
 
   }
 
@@ -123,6 +166,90 @@ public class SuccessFactorsSource extends BatchSource<LongWritable, StructuredRe
 
       default:
         failureCollector.addFailure(errMsg, null);
+    }
+  }
+
+  /**
+   * Configures the Hadoop job for data extraction.
+   *
+   * @param context
+   * @param outputSchema
+   * @throws TransportException             any http client exceptions are wrapped under it.
+   * @throws SuccessFactorsServiceException any SuccessFactors service based exception is wrapped under it.
+   * @throws IOException                    any IO exception occurs during the Hadoop Job instance creation.
+   */
+  private void configureJob(BatchSourceContext context, Schema outputSchema)
+    throws TransportException, SuccessFactorsServiceException, IOException {
+
+    SuccessFactorsService successFactorsService = SuccessFactorsUtil.getSuccessFactorsService(config);
+
+    long availableRowCount = successFactorsService.getTotalAvailableRowCount();
+
+    if (availableRowCount <= 0) {
+      LOG.warn(ResourceConstants.ERR_NO_RECORD_FOUND.getMsgForKeyWithCode(config.getEntityName()));
+    }
+
+    SuccessFactorsPartitionBuilder partitionBuilder = new SuccessFactorsPartitionBuilder();
+    List<SuccessFactorsInputSplit> partitions;
+    if (config.getPaginationType().equals(SERVER_SIDE)) {
+      partitions = new ArrayList<>();
+      partitions.add(new SuccessFactorsInputSplit());
+    } else {
+      partitions = partitionBuilder.buildSplits(availableRowCount);
+    }
+
+    setJobForDataRead(context, outputSchema, partitions, successFactorsService);
+  }
+
+  /**
+   * Sets the Hadoop Job runtime configuration parameters.
+   *
+   * @param context
+   * @param outputSchema
+   * @param partitions
+   * @param successFactorsService
+   * @throws TransportException             any http client exceptions are wrapped under it.
+   * @throws SuccessFactorsServiceException any OData service based exception is wrapped under it.
+   * @throws IOException                    any IO exception occurs during the Hadoop Job instance creation.
+   */
+  private void setJobForDataRead(BatchSourceContext context, Schema outputSchema, List<SuccessFactorsInputSplit>
+    partitions,
+                                 SuccessFactorsService successFactorsService)
+    throws TransportException, SuccessFactorsServiceException, IOException {
+
+    Configuration jobConfiguration;
+    Job job = JobUtils.createInstance();
+    jobConfiguration = job.getConfiguration();
+    Gson gson = new Gson();
+
+    // Set plugin properties in Hadoop Job's configuration
+    jobConfiguration.set(SuccessFactorsInputFormat.SUCCESSFACTORS_PLUGIN_PROPERTIES, gson.toJson(config));
+
+    // Serialize the list of partitions to save in Hadoop Configuration
+    jobConfiguration.set(SuccessFactorsInputFormat.PARTITIONS_PROPERTY, gson.toJson(partitions));
+
+    // Setting plugin output schema
+    jobConfiguration.set(OUTPUT_SCHEMA, outputSchema.toString());
+
+    // Serialize the SuccessFactors metadata to save in Hadoop Configuration
+    String metadataString = successFactorsService.getEncodedServiceMetadata();
+    jobConfiguration.set(SuccessFactorsInputFormat.ENCODED_ENTITY_METADATA_STRING, metadataString);
+
+    SourceInputFormatProvider inputFormat = new SourceInputFormatProvider(SuccessFactorsInputFormat.class,
+                                                                          jobConfiguration);
+    context.setInput(Input.of(config.getReferenceName(), inputFormat));
+  }
+
+  private void emitLineage(BatchSourceContext context, Schema schema, String entity) {
+
+    LineageRecorder lineageRecorder = new LineageRecorder(context, config.getReferenceName());
+    lineageRecorder.createExternalDataset(schema);
+
+    if (schema.getFields() != null) {
+      String operationDesc = String.format("Read '%s' from SAP SuccessFactors", entity);
+
+      lineageRecorder.recordRead("Read", operationDesc,
+                                 schema.getFields().stream().map(Schema.Field::getName).collect(Collectors.toList()));
     }
   }
 }

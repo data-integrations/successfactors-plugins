@@ -60,7 +60,6 @@ Feature: SuccessFactors Source - Design time validation scenarios
     And Enter input plugin property: "password" with value: "admin.password"
     Then Click on the Validate button
     And Verify that the Plugin is displaying an error message: "invalid.entityname.message" on the header
-    # Note : error which is provided on header is not specific for entity name
 
   @BATCH-TS-SCFA-DSGN-ERROR-04
   Scenario: Verify validation message when user provide invalid Credential details

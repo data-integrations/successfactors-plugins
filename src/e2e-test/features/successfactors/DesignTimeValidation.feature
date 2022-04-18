@@ -76,3 +76,17 @@ Feature: SuccessFactors Source - Design time validation scenarios
     And Verify that the Plugin Property: "username" is displaying an in-line error message: "invalid.credential.message"
     And Verify that the Plugin Property: "password" is displaying an in-line error message: "invalid.credential.message"
 
+  @BATCH-TS-SCFA-DSGN-ERROR-05
+  Scenario: Verify validation message when user provide Expand Field property for a non hierarchical Entity
+    When Open Datafusion Project to configure pipeline
+    And Select data pipeline type as: "Batch"
+    And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
+    And Navigate to the properties page of plugin: "SAP SuccessFactors"
+    And Enter input plugin property: "referenceName" with value: "Referencename"
+    And Enter input plugin property: "baseURL" with value: "admin.baseurl"
+    And Enter input plugin property: "entityName" with value: "Advance"
+    And Enter input plugin property: "username" with value: "admin.username"
+    And Enter input plugin property: "password" with value: "admin.password"
+    And Enter input plugin property: "expandOption" with value: "approver"
+    And Click on the Validate button
+    And Verify that the Plugin is displaying an error message: "invalid.expandfield.message" on the header

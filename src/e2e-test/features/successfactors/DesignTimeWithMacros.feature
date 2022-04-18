@@ -29,7 +29,7 @@ Feature: SuccessFactors Source - Design time scenarios (macros)
     And Click on the Macro button of Property: "entityName" and set the value to: "entityName"
     And Enter input plugin property: "username" with value: "admin.username"
     And Enter input plugin property: "password" with value: "admin.password"
-    Then Validate "Ariba" plugin properties
+    Then Validate "SAP SuccessFactors" plugin properties
 
   @BATCH-TS-SCFA-DSGN-MACRO-02
   Scenario:Verify user should be able to validate the plugin when Credentials Section is configured with macros
@@ -42,7 +42,7 @@ Feature: SuccessFactors Source - Design time scenarios (macros)
     And Enter input plugin property: "entityName" with value: "BadgeTemplates"
     And Click on the Macro button of Property: "username" and set the value to: "username"
     And Click on the Macro button of Property: "password" and set the value to: "password"
-    Then Validate "Ariba" plugin properties
+    Then Validate "SAP SuccessFactors" plugin properties
 
   @BATCH-TS-SCFA-DSGN-MACRO-03
   Scenario:Verify user should be able to validate the plugin when Advanced properties are configured with macros
@@ -62,4 +62,4 @@ Feature: SuccessFactors Source - Design time scenarios (macros)
     And Click on the Macro button of Property: "numRowsToFetch" and set the value to: "numRowsToFetch"
     And Click on the Macro button of Property: "splitCount" and set the value to: "splitCount"
     And Click on the Macro button of Property: "batchSize" and set the value to: "batchSize"
-    Then Validate "Ariba" plugin properties
+    Then Validate "SAP SuccessFactors" plugin properties

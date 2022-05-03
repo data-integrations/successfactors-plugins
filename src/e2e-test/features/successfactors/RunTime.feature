@@ -18,7 +18,7 @@
 @Regression
 Feature: SuccessFactors Source - Run time scenarios
 
-  @BATCH-TS-SCFA-DSGN-RNTM-01 @BQ_SINK_TEST
+  @BATCH-TS-SCFA-RNTM-01 @BQ_SINK_TEST
   Scenario: Verify user should be able to preview the pipeline when plugin is configured for a valid Entity name
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
@@ -26,7 +26,7 @@ Feature: SuccessFactors Source - Run time scenarios
     And Navigate to the properties page of plugin: "SAP SuccessFactors"
     And Enter input plugin property: "referenceName" with value: "Referencename"
     And Enter input plugin property: "baseURL" with value: "admin.baseurl"
-    And Enter input plugin property: "entityName" with value: "BadgeTemplates"
+    And Enter input plugin property: "entityName" with value: "AdvancesAccumulation"
     And Enter input plugin property: "username" with value: "admin.username"
     And Enter input plugin property: "password" with value: "admin.password"
     And Click on the Validate button
@@ -43,15 +43,15 @@ Feature: SuccessFactors Source - Run time scenarios
     And Verify the preview of pipeline is "success"
     Then Verify sink plugin's Preview Data for Input Records table and the Input Schema matches the Output Schema of Source plugin
 
-  @BATCH-TS-SCFA-DSGN-RNTM-02 @BQ_SINK_TEST
-  Scenario: Verify user should be able to run and deploy the pipeline when plugin is configured for valid Entity name
+  @BATCH-TS-SCFA-RNTM-02 @BQ_SINK_TEST
+  Scenario: Verify user should be able to deploy and run the pipeline when plugin is configured for valid Entity name
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
     And Navigate to the properties page of plugin: "SAP SuccessFactors"
     And Enter input plugin property: "referenceName" with value: "Referencename"
     And Enter input plugin property: "baseURL" with value: "admin.baseurl"
-    And Enter input plugin property: "entityName" with value: "BadgeTemplates"
+    And Enter input plugin property: "entityName" with value: "AdvancesAccumulation"
     And Enter input plugin property: "username" with value: "admin.username"
     And Enter input plugin property: "password" with value: "admin.password"
     And Click on the Validate button
@@ -69,7 +69,7 @@ Feature: SuccessFactors Source - Run time scenarios
     And Verify the pipeline status is "Succeeded"
     Then Verify count of no of records transferred to the target BigQuery Table
 
-  @BATCH-TS-SCFA-DSGN-RNTM-03 @BQ_SINK_TEST
+  @BATCH-TS-SCFA-RNTM-03 @BQ_SINK_TEST
   Scenario: Verify user should be able to preview the pipeline when plugin is configured with Advanced properties
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
@@ -77,11 +77,12 @@ Feature: SuccessFactors Source - Run time scenarios
     And Navigate to the properties page of plugin: "SAP SuccessFactors"
     And Enter input plugin property: "referenceName" with value: "Referencename"
     And Enter input plugin property: "baseURL" with value: "admin.baseurl"
-    And Enter input plugin property: "entityName" with value: "Advance"
+    And Enter input plugin property: "entityName" with value: "AdvancesAccumulation"
     And Enter input plugin property: "username" with value: "admin.username"
     And Enter input plugin property: "password" with value: "admin.password"
-    And Enter textarea plugin property: "filterOption" with value: "filteoption.greaterthan"
+    And Enter textarea plugin property: "filterOption" with value: "filteoption.rntm.greaterthan"
     And Enter textarea plugin property: "selectOption" with value: "filter.rntm.selectedfields"
+    And Enter input plugin property: "skipRowCount" with value: "10"
     And Enter input plugin property: "splitCount" with value: "2"
     And Enter input plugin property: "batchSize" with value: "1000"
     And Click on the Validate button
@@ -98,19 +99,20 @@ Feature: SuccessFactors Source - Run time scenarios
     And Verify the preview of pipeline is "success"
     Then Verify sink plugin's Preview Data for Input Records table and the Input Schema matches the Output Schema of Source plugin
 
-  @BATCH-TS-SCFA-DSGN-RNTM-04 @BQ_SINK_TEST
-  Scenario: Verify user should be able to run and deploy the pipeline when plugin is configured with Advanced properties
+  @BATCH-TS-SCFA-RNTM-04 @BQ_SINK_TEST
+  Scenario: Verify user should be able to deploy and run the pipeline when plugin is configured with Advanced properties
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
     And Navigate to the properties page of plugin: "SAP SuccessFactors"
     And Enter input plugin property: "referenceName" with value: "Referencename"
     And Enter input plugin property: "baseURL" with value: "admin.baseurl"
-    And Enter input plugin property: "entityName" with value: "Advance"
+    And Enter input plugin property: "entityName" with value: "AdvancesAccumulation"
     And Enter input plugin property: "username" with value: "admin.username"
     And Enter input plugin property: "password" with value: "admin.password"
-    And Enter textarea plugin property: "filterOption" with value: "filteoption.greaterthan"
+    And Enter textarea plugin property: "filterOption" with value: "filteoption.rntm.greaterthan"
     And Enter textarea plugin property: "selectOption" with value: "filter.rntm.selectedfields"
+    And Enter input plugin property: "skipRowCount" with value: "10"
     And Enter input plugin property: "splitCount" with value: "2"
     And Enter input plugin property: "batchSize" with value: "1000"
     And Click on the Validate button

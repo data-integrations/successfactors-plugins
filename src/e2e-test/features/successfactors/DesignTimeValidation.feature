@@ -34,7 +34,7 @@ Feature: SuccessFactors Source - Design time validation scenarios
 
 
   @BATCH-TS-SCFA-DSGN-ERROR-02
-  Scenario: Verify validation message when user provide invalid BaseURL
+  Scenario: Verify validation message when user provides an invalid BaseURL
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
@@ -48,7 +48,7 @@ Feature: SuccessFactors Source - Design time validation scenarios
     And Verify that the Plugin Property: "baseURL" is displaying an in-line error message: "invalid.baseurl.message"
 
   @BATCH-TS-SCFA-DSGN-ERROR-03
-  Scenario: Verify validation message when user provide invalid Entity Name
+  Scenario: Verify validation message when user provides an invalid Entity Name
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
@@ -62,7 +62,7 @@ Feature: SuccessFactors Source - Design time validation scenarios
     And Verify that the Plugin is displaying an error message: "invalid.entityname.message" on the header
 
   @BATCH-TS-SCFA-DSGN-ERROR-04
-  Scenario: Verify validation message when user provide invalid Credential details
+  Scenario: Verify validation message when user provides invalid Credential details
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
@@ -77,7 +77,7 @@ Feature: SuccessFactors Source - Design time validation scenarios
     And Verify that the Plugin Property: "password" is displaying an in-line error message: "invalid.credential.message"
 
   @BATCH-TS-SCFA-DSGN-ERROR-05
-  Scenario: Verify validation message when user provide Expand Field property for a non hierarchical Entity
+  Scenario: Verify validation message when user provides an Expand Field property for a non hierarchical Entity
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"

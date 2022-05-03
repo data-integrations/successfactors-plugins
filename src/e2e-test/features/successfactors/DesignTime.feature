@@ -19,7 +19,7 @@
 Feature: SuccessFactors Source - Design time scenarios
 
   @BATCH-TS-SCFA-DSGN-01
-  Scenario Outline: Verify user should be able to get output schema for the plugin
+  Scenario Outline: Verify user should be able to get output schema for a valid Entity name
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
@@ -29,17 +29,18 @@ Feature: SuccessFactors Source - Design time scenarios
     And Enter input plugin property: "entityName" with value: "<EntityName>"
     And Enter input plugin property: "username" with value: "admin.username"
     And Enter input plugin property: "password" with value: "admin.password"
-    And Validate output schema with expectedSchema "<ExpectedSchema>"
+    Then Validate output schema with expectedSchema "<ExpectedSchema>"
     Examples: 
     | EntityName             | ExpectedSchema                |
     | BadgeTemplates         | schema.badgetemplates         |
     | AdvancesAccumulation   | schema.advancesaccumulation   |
     | Advance                | schema.advance                |
+    | AdvancesEligibility    | schema.advanceseligibility    |
     | EmpCompensation        | schema.empcompensation        |
     | Background_Certificates| schema.backgroundcertificates |
 
   @BATCH-TS-SCFA-DSGN-02
-  Scenario Outline: Verify user should be able to validate the plugin for Filter options property
+  Scenario Outline: Verify user should be able to validate the plugin with Filter options property
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
@@ -62,9 +63,15 @@ Feature: SuccessFactors Source - Design time scenarios
     | filteoption.and                  |
     | filteoption.or                   |
     | filteoption.not                  |
+    | filter.add                       |
+    | filter.sub                       |
+    | filter.mul                       |
+    | filter.div                       |
+    | filter.mod                       |
+    | filter.grouping                  |
 
   @BATCH-TS-SCFA-DSGN-03
-  Scenario Outline: Verify user should be able to get output schema for Select Fields property
+  Scenario Outline: Verify user should be able to get output schema with Select Fields property
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
@@ -83,7 +90,7 @@ Feature: SuccessFactors Source - Design time scenarios
       | EmpCompensation | filter.empcomp.selectedfields | filter.empcomp.schema |
 
   @BATCH-TS-SCFA-DSGN-04
-  Scenario Outline: Verify user should be able to validate the plugin for Advanced properties
+  Scenario Outline: Verify user should be able to validate the plugin with Advanced properties
     When Open Datafusion Project to configure pipeline
     And Select data pipeline type as: "Batch"
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
@@ -103,4 +110,20 @@ Feature: SuccessFactors Source - Design time scenarios
       | SkipRowCount | NumRowsToFetch | SplitCount | BatchSize   |
       | 2            | 5              | 5          | 500         |
       | 10           | 10             | 5          | 10000       |
+
+  @BATCH-TS-SCFA-DSGN-05
+  Scenario: Verify user should be able to validate the plugin with Expand Fields Property
+    When Open Datafusion Project to configure pipeline
+    And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
+    And Navigate to the properties page of plugin: "SAP SuccessFactors"
+    And Enter input plugin property: "referenceName" with value: "referenceName"
+    And Enter input plugin property: "baseURL" with value: "admin.baseurl"
+    And Enter input plugin property: "entityName" with value: "User"
+    And Enter input plugin property: "username" with value: "admin.username"
+    And Enter input plugin property: "password" with value: "admin.password"
+    And Enter textarea plugin property: "selectOption" with value: "customManager,customReports"
+    And Enter input plugin property: "expandOption" with value: "customManager,customReports"
+    Then Verify the Output Schema matches the Expected Schema for listed Hierarchical fields:
+    | customManager | filter.expand.schema |
+
 

@@ -27,8 +27,8 @@ Feature: SuccessFactors Source - Design time scenarios (macros)
     And Enter input plugin property: "referenceName" with value: "Referencename"
     And Click on the Macro button of Property: "baseURL" and set the value to: "baseURL"
     And Click on the Macro button of Property: "entityName" and set the value to: "entityName"
-    And Enter input plugin property: "username" with value: "admin.username"
-    And Enter input plugin property: "password" with value: "admin.password"
+    And Enter input plugin property: "username" with value: "admin.username" for Credentials and Authorization related fields
+    And Enter input plugin property: "password" with value: "admin.password" for Credentials and Authorization related fields
     Then Validate "SAP SuccessFactors" plugin properties
 
   @BATCH-TS-SCFA-DSGN-MACRO-02
@@ -38,7 +38,7 @@ Feature: SuccessFactors Source - Design time scenarios (macros)
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
     And Navigate to the properties page of plugin: "SAP SuccessFactors"
     And Enter input plugin property: "referenceName" with value: "Referencename"
-    And Enter input plugin property: "baseURL" with value: "admin.baseurl"
+    And Enter input plugin property: "baseURL" with value: "admin.baseurl" for Credentials and Authorization related fields
     And Enter input plugin property: "entityName" with value: "BadgeTemplates"
     And Click on the Macro button of Property: "username" and set the value to: "username"
     And Click on the Macro button of Property: "password" and set the value to: "password"
@@ -51,15 +51,13 @@ Feature: SuccessFactors Source - Design time scenarios (macros)
     And Select plugin: "SAP SuccessFactors" from the plugins list as: "Source"
     And Navigate to the properties page of plugin: "SAP SuccessFactors"
     And Enter input plugin property: "referenceName" with value: "Referencename"
-    And Enter input plugin property: "baseURL" with value: "admin.baseurl"
+    And Enter input plugin property: "baseURL" with value: "admin.baseurl" for Credentials and Authorization related fields
     And Enter input plugin property: "entityName" with value: "BadgeTemplates"
-    And Enter input plugin property: "username" with value: "admin.username"
-    And Enter input plugin property: "password" with value: "admin.password"
+    And Enter input plugin property: "username" with value: "admin.username" for Credentials and Authorization related fields
+    And Enter input plugin property: "password" with value: "admin.password" for Credentials and Authorization related fields
     And Click on the Macro button of Property: "filterOption" and set the value in textarea: "filterOption"
     And Click on the Macro button of Property: "selectOption" and set the value in textarea: "selectOption"
     And Click on the Macro button of Property: "expandOption" and set the value to: "expandOption"
-    And Click on the Macro button of Property: "skipRowCount" and set the value to: "skipRowCount"
-    And Click on the Macro button of Property: "numRowsToFetch" and set the value to: "numRowsToFetch"
-    And Click on the Macro button of Property: "splitCount" and set the value to: "splitCount"
-    And Click on the Macro button of Property: "batchSize" and set the value to: "batchSize"
+    And Click on the Macro button of Property: "associatedEntityName" and set the value to: "associatedEntityName"
+    And Click on the Macro button of Property: "paginationType" and set the value to: "paginationType"
     Then Validate "SAP SuccessFactors" plugin properties

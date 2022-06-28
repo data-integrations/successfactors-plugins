@@ -581,6 +581,17 @@
             <configuration>
               <includes>
                 <include>TestRunner.java</include>
+                <environmentVariables>
+                  <SUCCESSFACTORS_USERNAME>
+                    ${SUCCESSFACTORS_USERNAME}
+                  </SUCCESSFACTORS_USERNAME>
+                  <SUCCESSFACTORS_PASSWORD>
+                    ${SUCCESSFACTORS_PASSWORD}
+                  </SUCCESSFACTORS_PASSWORD>
+                  <SUCCESSFACTORS_BASEURL>
+                    ${SUCCESSFACTORS_BASEURL}
+                  </SUCCESSFACTORS_BASEURL>
+                </environmentVariables>
               </includes>
             </configuration>
             <executions>

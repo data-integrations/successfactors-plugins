@@ -37,16 +37,19 @@ public enum ResourceConstants {
   ERR_FAILED_ENTITY_VALIDATION(null, "err.failed.entity.validation"),
   ERR_CHECK_ADVANCED_PARAM(null, "err.check.advanced.parameter"),
   ERR_NOT_FOUND(null, "err.resource.not.found"),
-  DEBUG_TEST_ENDPOINT(null, "debug.test.endpoint"),
-  DEBUG_METADATA_ENDPOINT(null, "debug.metadata.endpoint"),
-  DEBUG_CALL_SERVICE_START(null, "debug.call.service.start"),
-  DEBUG_CALL_SERVICE_END(null, "debug.call.service.end"),
   ERR_NO_COLUMN_FOUND(null, "err.no.column.found"),
   ERR_BUILDING_COLUMNS(null, "err.building.columns"),
   DEBUG_NAVIGATION_NOT_FOUND(null, "debug.navigation.not.found"),
   DEBUG_NAV_PROP_NOT_FOUND(null, "debug.nav.prop.not.found"),
   DEBUG_ENTITY_NOT_FOUND(null, "debug.entity.not.found"),
-  ERR_READING_METADATA(null, "err.reading.metadata");
+  ERR_READING_METADATA(null, "err.reading.metadata"),
+  ERR_MACRO_INPUT("CDF_SAP_SUCCESSFACTORS_01505", "err.macro.input"),
+  ERR_NO_RECORD_FOUND("CDF_SAP_SUCCESSFACTORS_01506", "err.no.record.found"),
+  ERR_FETCH_RECORD_COUNT("CDF_SAP_SUCCESSFACTORS_01503", "err.fetch.record.count"),
+  ERR_METADATA_ENCODED_STRING("CDF_SAP_SUCCESSFACTORS_01504", "err.metadata.encoded.string"),
+  ERR_METADATA_DECODE("CDF_SAP_SUCCESSFACTORS_01533", "err.metadata.decode"),
+  ERR_RECORD_PULL("CDF_SAP_SUCCESSFACTORS_01536", "err.record.pull"),
+  ERR_RECORD_PROCESSING("CDF_SAP_SUCCESSFACTORS_01537", "err.record.processing");
 
   private final String code;
   private final String key;

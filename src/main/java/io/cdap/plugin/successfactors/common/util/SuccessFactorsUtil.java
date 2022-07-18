@@ -15,11 +15,14 @@
  */
 package io.cdap.plugin.successfactors.common.util;
 
+import io.cdap.plugin.successfactors.source.config.SuccessFactorsPluginConfig;
+import io.cdap.plugin.successfactors.source.service.SuccessFactorsService;
+import io.cdap.plugin.successfactors.source.transport.SuccessFactorsTransporter;
+
 import javax.annotation.Nullable;
 
-
 /**
- * Utility Class
+ * SuccessFactors Utility Class
  */
 public class SuccessFactorsUtil {
 
@@ -68,7 +71,7 @@ public class SuccessFactorsUtil {
    * @return refactored String or null
    */
   public static String removeWhitespace(String rawString) {
-    if (SuccessFactorsUtil.isNotNullOrEmpty(rawString)) {
+    if (isNotNullOrEmpty(rawString)) {
       return rawString.replaceAll("\\s", "");
     }
     return rawString;
@@ -85,5 +88,18 @@ public class SuccessFactorsUtil {
       return rawString.trim();
     }
     return rawString;
+  }
+
+  /**
+   * Get the SuccessFactorsService instance.
+   *
+   * @param pluginConfig
+   * @return SuccessFactorsService instance
+   */
+  public static SuccessFactorsService getSuccessFactorsService(SuccessFactorsPluginConfig pluginConfig) {
+    SuccessFactorsTransporter transporter = new SuccessFactorsTransporter(pluginConfig.getUsername(),
+                                                                          pluginConfig.getPassword());
+    SuccessFactorsService successFactorsService = new SuccessFactorsService(pluginConfig, transporter);
+    return successFactorsService;
   }
 }

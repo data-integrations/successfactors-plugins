@@ -16,6 +16,7 @@
 
 package io.cdap.plugin.successfactors.source.config;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import io.cdap.cdap.api.annotation.Description;
 import io.cdap.cdap.api.annotation.Macro;
@@ -125,16 +126,17 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
     "automatically forces client offset pagination on the query.y. Default is Server-side Pagination.")
   private String paginationType;
 
-  SuccessFactorsPluginConfig(String referenceName,
-                             String baseURL,
-                             String entityName,
-                             String associateEntityName,
-                             @Nullable String username,
-                             @Nullable String password,
-                             @Nullable String filterOption,
-                             @Nullable String selectOption,
-                             @Nullable String expandOption,
-                             String paginationType) {
+  @VisibleForTesting
+  public SuccessFactorsPluginConfig(String referenceName,
+                                    String baseURL,
+                                    String entityName,
+                                    String associateEntityName,
+                                    @Nullable String username,
+                                    @Nullable String password,
+                                    @Nullable String filterOption,
+                                    @Nullable String selectOption,
+                                    @Nullable String expandOption,
+                                    String paginationType) {
 
     this.referenceName = referenceName;
     this.baseURL = baseURL;

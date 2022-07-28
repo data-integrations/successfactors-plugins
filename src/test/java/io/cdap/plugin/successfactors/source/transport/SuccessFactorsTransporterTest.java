@@ -33,6 +33,8 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -61,6 +63,7 @@ public class SuccessFactorsTransporterTest {
   private SuccessFactorsTransporter transporter;
   private SuccessFactorsPluginConfig pluginConfig;
   private SuccessFactorsUrlContainer successFactorsURL;
+  private static final Logger LOG = LoggerFactory.getLogger(SuccessFactorsTransporterTest.class);
 
   @BeforeClass
   public static void classSetup() {
@@ -107,7 +110,7 @@ public class SuccessFactorsTransporterTest {
       builder.hostnameVerifier(customHostVerifier);
       return builder;
     } catch (NoSuchAlgorithmException | KeyManagementException e) {
-      e.printStackTrace();
+      LOG.error("Failed due to exception", e);
       return null;
     }
   }

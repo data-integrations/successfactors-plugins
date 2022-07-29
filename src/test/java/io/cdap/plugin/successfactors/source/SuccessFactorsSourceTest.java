@@ -169,19 +169,19 @@ public class SuccessFactorsSourceTest {
       {
         successFactorsUrlContainer.getTesterURL();
         result = getUrl();
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsUrlContainer.getMetadataURL();
         result = getUrl();
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsTransporter.callSuccessFactorsEntity(null, anyString, anyString);
         result = getResponseContainer();
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsSchemaGenerator.buildDefaultOutputSchema(anyString);
         result = getPluginSchema();
-        minTimes = 0;
+        minTimes = 1;
       }
     };
 
@@ -191,6 +191,8 @@ public class SuccessFactorsSourceTest {
     successFactorsSource.configurePipeline(pipelineConfigurer);
     schema = pipelineConfigurer.getOutputSchema();
     Assert.assertNotNull("Output Schema generated is not Null", schema);
+    Assert.assertEquals(8, schema.getFields().size());
+    Assert.assertEquals("{name: bgOrderPos, schema: \"long\"}", schema.getFields().get(1).toString());
   }
 
   @Test
@@ -200,7 +202,7 @@ public class SuccessFactorsSourceTest {
       {
         pluginConfig.isSchemaBuildRequired();
         result = false;
-        minTimes = 0;
+        minTimes = 1;
       }
     };
     Map<String, Object> plugins = new HashMap<>();
@@ -210,6 +212,9 @@ public class SuccessFactorsSourceTest {
     Assert.assertNull(schema);
   }
 
+  /**
+   * ValidationException is expected as SuccessFactors services are not handled here.
+   */
   @Test(expected = ValidationException.class)
   public void testConnectionException() {
     pluginConfig = pluginConfigBuilder.build();
@@ -219,6 +224,10 @@ public class SuccessFactorsSourceTest {
     successFactorsSource.configurePipeline(mockPipelineConfigurer);
   }
 
+  /**
+   * ValidationException is expected as SuccessFactors services are not handled here.
+   * Connection will fail here and exception is thrown.
+   */
   @Test
   public void testConfigurePipelineConnectionException() {
     pluginConfig = pluginConfigBuilder.build();
@@ -226,7 +235,7 @@ public class SuccessFactorsSourceTest {
       {
         pluginConfig.isSchemaBuildRequired();
         result = true;
-        minTimes = 0;
+        minTimes = 1;
       }
     };
     try {
@@ -274,20 +283,20 @@ public class SuccessFactorsSourceTest {
       {
         context.getOutputSchema();
         result = getPluginSchema();
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsTransporter.callSuccessFactors(null, anyString, anyString);
         result = getResponseContainer();
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsPartitionBuilder.buildSplits(50);
 
         result = getSplits();
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsService.getEncodedServiceMetadata();
         result = "encodeMetadataString";
-        minTimes = 0;
+        minTimes = 1;
       }
 
     };
@@ -317,11 +326,11 @@ public class SuccessFactorsSourceTest {
       {
         context.getOutputSchema();
         result = null;
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsService.checkSuccessFactorsURL();
         result = new SuccessFactorsServiceException("Unauthorized Access", 401);
-        minTimes = 0;
+        minTimes = 1;
       }
     };
 
@@ -350,11 +359,11 @@ public class SuccessFactorsSourceTest {
       {
         context.getOutputSchema();
         result = null;
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsService.checkSuccessFactorsURL();
         result = new SuccessFactorsServiceException("Forbidden Error", 403);
-        minTimes = 0;
+        minTimes = 1;
       }
     };
 
@@ -383,11 +392,11 @@ public class SuccessFactorsSourceTest {
       {
         context.getOutputSchema();
         result = null;
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsService.checkSuccessFactorsURL();
         result = new SuccessFactorsServiceException("Not Found Error", 404);
-        minTimes = 0;
+        minTimes = 1;
       }
     };
 
@@ -416,11 +425,11 @@ public class SuccessFactorsSourceTest {
       {
         context.getOutputSchema();
         result = null;
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsService.checkSuccessFactorsURL();
         result = new SuccessFactorsServiceException("Bad Request Error", 400);
-        minTimes = 0;
+        minTimes = 1;
       }
     };
 
@@ -449,11 +458,11 @@ public class SuccessFactorsSourceTest {
       {
         context.getOutputSchema();
         result = null;
-        minTimes = 0;
+        minTimes = 1;
 
         successFactorsService.checkSuccessFactorsURL();
         result = new SuccessFactorsServiceException("Invalid Version Error", 1);
-        minTimes = 0;
+        minTimes = 1;
       }
     };
 

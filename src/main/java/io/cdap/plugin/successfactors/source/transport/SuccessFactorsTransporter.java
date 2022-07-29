@@ -45,7 +45,7 @@ import javax.ws.rs.core.MediaType;
  * make a rest web service call to the SAP SuccessFactors exposed services.
  */
 public class SuccessFactorsTransporter {
-  public static final String SERVICE_VERSION = "dataserviceversion";
+  static final String SERVICE_VERSION = "dataserviceversion";
   private static final Logger LOG = LoggerFactory.getLogger(SuccessFactorsTransporter.class);
   private static final long CONNECTION_TIMEOUT = 300;
   private static final long WAIT_TIME = 5;

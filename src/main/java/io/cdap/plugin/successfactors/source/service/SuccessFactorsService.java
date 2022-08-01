@@ -69,8 +69,8 @@ import javax.ws.rs.core.MediaType;
  */
 public class SuccessFactorsService {
 
-  private static final String TEST = "TEST";
-  private static final String METADATA = "METADATA";
+  public static final String TEST = "TEST";
+  public static final String METADATA = "METADATA";
   private static final String COUNT = "COUNT";
   private static final String SERVER_SIDE = "serverSide";
   private static final String ODATA_ROOT_ELEMENT = "d";

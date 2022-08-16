@@ -17,6 +17,8 @@ package io.cdap.plugin.successfactors.source;
 
 import com.google.gson.Gson;
 import io.cdap.cdap.api.annotation.Description;
+import io.cdap.cdap.api.annotation.Metadata;
+import io.cdap.cdap.api.annotation.MetadataProperty;
 import io.cdap.cdap.api.annotation.Name;
 import io.cdap.cdap.api.annotation.Plugin;
 import io.cdap.cdap.api.data.batch.Input;
@@ -27,6 +29,7 @@ import io.cdap.cdap.etl.api.PipelineConfigurer;
 import io.cdap.cdap.etl.api.StageConfigurer;
 import io.cdap.cdap.etl.api.batch.BatchSource;
 import io.cdap.cdap.etl.api.batch.BatchSourceContext;
+import io.cdap.cdap.etl.api.connector.Connector;
 import io.cdap.plugin.common.LineageRecorder;
 import io.cdap.plugin.common.SourceInputFormatProvider;
 import io.cdap.plugin.common.batch.JobUtils;
@@ -35,6 +38,7 @@ import io.cdap.plugin.successfactors.common.exception.TransportException;
 import io.cdap.plugin.successfactors.common.util.ExceptionParser;
 import io.cdap.plugin.successfactors.common.util.ResourceConstants;
 import io.cdap.plugin.successfactors.common.util.SuccessFactorsUtil;
+import io.cdap.plugin.successfactors.connector.SuccessFactorsConnector;
 import io.cdap.plugin.successfactors.source.config.SuccessFactorsPluginConfig;
 import io.cdap.plugin.successfactors.source.input.SuccessFactorsInputFormat;
 import io.cdap.plugin.successfactors.source.input.SuccessFactorsInputSplit;
@@ -61,6 +65,7 @@ import javax.annotation.Nullable;
 @Plugin(type = BatchSource.PLUGIN_TYPE)
 @Name(SuccessFactorsSource.NAME)
 @Description("Reads the SuccessFactors data which is exposed as OData services from SAP.")
+@Metadata(properties = {@MetadataProperty(key = Connector.PLUGIN_TYPE, value = SuccessFactorsConnector.NAME)})
 public class SuccessFactorsSource extends BatchSource<LongWritable, StructuredRecord, StructuredRecord> {
   public static final String NAME = "SuccessFactors";
   public static final String OUTPUT_SCHEMA = "outputSchema";
@@ -120,18 +125,21 @@ public class SuccessFactorsSource extends BatchSource<LongWritable, StructuredRe
    */
   @Nullable
   private Schema getOutputSchema(FailureCollector failureCollector) {
-    SuccessFactorsTransporter transporter = new SuccessFactorsTransporter(config.getUsername(), config.getPassword());
-    SuccessFactorsService successFactorsServices = new SuccessFactorsService(config, transporter);
-    try {
-      //validate if the given parameters form a valid SuccessFactors URL.
-      successFactorsServices.checkSuccessFactorsURL();
-      return successFactorsServices.buildOutputSchema();
-    } catch (TransportException te) {
-      String errorMsg = ExceptionParser.buildTransportError(te);
-      errorMsg = ResourceConstants.ERR_ODATA_SERVICE_CALL.getMsgForKeyWithCode(errorMsg);
-      failureCollector.addFailure(errorMsg, null).withConfigProperty(SuccessFactorsPluginConfig.BASE_URL);
-    } catch (SuccessFactorsServiceException ose) {
-      attachFieldWithError(ose, failureCollector);
+    if (config.getConnection() != null) {
+      SuccessFactorsTransporter transporter = new SuccessFactorsTransporter(config.getConnection().getUsername(),
+                                                                            config.getConnection().getPassword());
+      SuccessFactorsService successFactorsServices = new SuccessFactorsService(config, transporter);
+      try {
+        //validate if the given parameters form a valid SuccessFactors URL.
+        successFactorsServices.checkSuccessFactorsURL();
+        return successFactorsServices.buildOutputSchema();
+      } catch (TransportException te) {
+        String errorMsg = ExceptionParser.buildTransportError(te);
+        errorMsg = ResourceConstants.ERR_ODATA_SERVICE_CALL.getMsgForKeyWithCode(errorMsg);
+        failureCollector.addFailure(errorMsg, null).withConfigProperty(SuccessFactorsPluginConfig.BASE_URL);
+      } catch (SuccessFactorsServiceException ose) {
+        attachFieldWithError(ose, failureCollector);
+      }
     }
     failureCollector.getOrThrowException();
     return null;

@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -125,11 +126,11 @@ public class RuntimeFunctionalTest {
                                  inputSplit.getStart(), inputSplit.getEnd());
       Assert.assertEquals(msg, expectedRecordsToPull, recordList.size());
       int expectedNetworkCallCount = (int) (expectedRecordsToPull / inputSplit.getBatchSize());
-      verify(expectedNetworkCallCount, getRequestedFor(WireMock.urlEqualTo("/odata/v2/Background_SpecialAssign?%24" +
-                                                                             "select=backgroundElementId%2C" +
-                                                                             "bgOrderPos%2Cdescription%2CendDate%2C" +
-                                                                             "lastModifiedDate%2Cproject%2C" +
-                                                                             "startDate%2CuserId&%24top=3")));
+      verify(expectedNetworkCallCount, getRequestedFor(WireMock.urlEqualTo("/odata/v2/Background_SpecialAssign?" +
+                                                                             "%24select=backgroundElementId%2C" +
+                                                                             "bgOrderPos%2Cdescription%2CendDate%2" +
+                                                                             "ClastModifiedDate%2Cproject%2C" +
+                                                                             "startDate%2CuserId%2Cprice&%24top=3")));
     }
   }
 
@@ -174,9 +175,17 @@ public class RuntimeFunctionalTest {
         StructuredRecord structuredRecord = recordList.get(i);
         pluginSchema.getFields().forEach(field -> {
           String fieldName = field.getName();
-          Assert.assertEquals(field.getName() + " value is not equal.",
-                              processSchemaTypeValue(field.getSchema(), oDataEntry.getProperties().get(fieldName)),
-                              structuredRecord.get(field.getName()));
+          if (!field.getSchema().getType().isSimpleType() && field.getSchema().getUnionSchema(0).getLogicalType()
+            != null && field.getSchema().getUnionSchema(0).getLogicalType() == Schema.LogicalType.DECIMAL) {
+            Assert.assertArrayEquals(field.getName() + " value is not equal.",
+                                     (byte[]) processSchemaTypeValue(field.getSchema(), oDataEntry.getProperties()
+                                       .get(fieldName)), structuredRecord.get(field.getName()));
+          } else {
+            Assert.assertEquals(field.getName() + " value is not equal.",
+                                processSchemaTypeValue(field.getSchema(), oDataEntry.getProperties().get(fieldName)),
+                                structuredRecord.get(field.getName()));
+          }
+
         });
       }
     }
@@ -204,6 +213,9 @@ public class RuntimeFunctionalTest {
       Instant instant = pluginValue.toInstant();
       long micros = TimeUnit.SECONDS.toMicros(instant.getEpochSecond());
       return Math.addExact(micros, TimeUnit.NANOSECONDS.toMicros(instant.getNano()));
+    } else if (logicalType == Schema.LogicalType.DATETIME) {
+      LocalDateTime localDateTime = ((GregorianCalendar) fieldValue).toZonedDateTime().toLocalDateTime();
+      return localDateTime.toString();
     }
     return fieldValue;
   }
@@ -248,10 +260,12 @@ public class RuntimeFunctionalTest {
       "\"backgroundElementId\",\"type\":\"long\"},{\"name\":\"bgOrderPos\",\"type\":\"long\"},{\"name\":" +
       "\"description\",\"type\":[\"string\",\"null\"]},{\"name\":\"endDate\",\"type\":[{\"type\":\"long\"," +
       "\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"lastModifiedDate\",\"type\":" +
-      "[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"},\"null\"]},{\"name\":\"project\",\"type\":" +
-      "\"string\"},{\"name\":\"startDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"timestamp-micros\"}," +
-      "\"null\"]},{\"name\":\"userId\",\"type\":\"string\"}]}";
-
+      "[{\"type\":\"long\",\"logicalType\":\"datetime\"},\"null\"]},{\"name\":\"project\",\"type\":" +
+      "\"string\"},{\"name\":\"startDate\",\"type\":[{\"type\":\"long\",\"logicalType\":\"time-micros\"}," +
+      "\"null\"]},{\"name\":\"userId\",\"type\":\"string\"},{\"name\":\"price\",\"type\":[{\"type\":\"bytes\"," +
+      "\"logicalType\":\"decimal\",\"precision\":15,\"scale\":2},\"null\"]},{\"name\":\"annualMaxPayComponent\"," +
+      "\"type\":[\"string\",\"null\"]}]}";
     return Schema.parseJson(schemaString);
   }
+
 }

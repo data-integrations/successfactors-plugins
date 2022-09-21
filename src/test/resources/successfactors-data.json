@@ -13,7 +13,8 @@
                 "bgOrderPos": "2",
                 "description": "Provided Cyber Security expertise for Acme Corp Project",
                 "project": "Cyber Security",
-                "startDate": "/Date(1580688000000)/"
+                "startDate": "/Date(1580688000000)/",
+                "price": "200.20"
             },
             {
                 "__metadata": {
@@ -27,7 +28,8 @@
                 "bgOrderPos": "1",
                 "description": "Acme Corp - customer enablement for security tools",
                 "project": "Cyber Security",
-                "startDate": "/Date(1588291200000)/"
+                "startDate": "/Date(1588291200000)/",
+                "price": "200.20"
             },
             {
                 "__metadata": {
@@ -41,7 +43,8 @@
                 "bgOrderPos": "1",
                 "description": "Assisted with set up of security for ABC Corp",
                 "project": "Cyber Security",
-                "startDate": "/Date(1604880000000)/"
+                "startDate": "/Date(1604880000000)/",
+                "price": "200.20"
             }
         ]
     }

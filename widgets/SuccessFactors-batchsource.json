@@ -5,42 +5,6 @@
   "display-name": "SAP SuccessFactors",
   "configuration-groups": [
     {
-      "label": "Basic",
-      "properties": [
-        {
-          "widget-type": "textbox",
-          "label": "Reference Name",
-          "name": "referenceName",
-          "widget-attributes": {
-            "placeholder": "Used to uniquely identify this source for lineage, annotating metadata etc."
-          }
-        },
-        {
-          "widget-type": "textbox",
-          "label": "Entity Name",
-          "name": "entityName",
-          "widget-attributes": {
-            "placeholder": "SAP SuccessFactors Entity name. For example, People"
-          },
-
-          "plugin-function": {
-            "method": "POST",
-            "widget": "outputSchema",
-            "plugin-method": "getSchema"
-          }
-        },
-        {
-          "label": "browse",
-          "widget-type": "connection-browser",
-          "widget-category": "plugin",
-          "widget-attributes": {
-            "connectionType": " SUCCESSFACTORS",
-            "label": "Browse"
-          }
-        }
-      ]
-    },
-    {
       "label": "Connection",
       "properties": [
         {
@@ -89,6 +53,42 @@
           "name": "baseURL",
           "widget-attributes": {
             "placeholder": "SAP SuccessFactors base url, for example, https://<hostname>/odata/v2"
+          }
+        }
+      ]
+    },
+    {
+      "label": "Basic",
+      "properties": [
+        {
+          "widget-type": "textbox",
+          "label": "Reference Name",
+          "name": "referenceName",
+          "widget-attributes": {
+            "placeholder": "Used to uniquely identify this source for lineage, annotating metadata etc."
+          }
+        },
+        {
+          "label": "browse",
+          "widget-type": "connection-browser",
+          "widget-category": "plugin",
+          "widget-attributes": {
+            "connectionType": " SUCCESSFACTORS",
+            "label": "Browse"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Entity Name",
+          "name": "entityName",
+          "widget-attributes": {
+            "placeholder": "SAP SuccessFactors Entity name. For example, People"
+          },
+
+          "plugin-function": {
+            "method": "POST",
+            "widget": "outputSchema",
+            "plugin-method": "getSchema"
           }
         }
       ]

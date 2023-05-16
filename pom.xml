@@ -20,7 +20,7 @@
 
   <groupId>io.cdap.plugin.successfactors</groupId>
   <artifactId>successfactors-plugins</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -663,19 +663,19 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.8</version>
           </dependency>
-          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>31.0.1-jre</version>
-            <scope>compile</scope>
-          </dependency>
         </dependencies>
       </dependencyManagement>
       <dependencies>
         <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>31.1-jre</version>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
           <groupId>io.cdap.tests.e2e</groupId>
           <artifactId>cdap-e2e-framework</artifactId>
-          <version>0.1.0-SNAPSHOT</version>
+          <version>0.3.0-SNAPSHOT</version>
           <scope>test</scope>
         </dependency>
       </dependencies>

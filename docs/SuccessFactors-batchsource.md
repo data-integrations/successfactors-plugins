@@ -4,7 +4,7 @@ The SuccessFactors Batch Source plugin enables bulk data integration from Succes
 platform. You can configure and execute bulk data transfers from SuccessFactors Entities without any coding.
 
 ## Properties
-You can configure the following properties for the SuccessFactors.
+You can configure the following properties for the SAP SuccessFactors.
 
 **Note**: The following indicators are used to define the fields:  
 **M** - Indicates Macros are supported for the respective field  
@@ -12,14 +12,17 @@ You can configure the following properties for the SuccessFactors.
 
 ## Basic
 **Reference Name:** Name used to uniquely identify this source for lineage,
-annotating metadata, etc.
-**SAP SuccessFactors Base URL (M)**: SAP SuccessFactors Base URL.
+annotating metadata, etc.  
 **Entity Name (M)**: Name of the Entity to be extracted.
 
-## Credentials
-
+## Connection
+**Use Connection:** Whether to use a connection. If a connection is used, you do not need to provide the credentials.  
+**Connection:** Name of the connection to use. Entity Names information will be provided by the connection.
+You also can use the macro function ${conn(connection-name)}.  
 **SAP SuccessFactors Logon Username (M)**: SAP SuccessFactors Logon Username for user authentication.  
-**SAP SuccessFactors Logon Password (M)**: SAP SuccessFactors Logon password for user authentication.
+**SAP SuccessFactors Logon Password (M)**: SAP SuccessFactors Logon password for user authentication.  
+**SAP SuccessFactors Base URL (M)**: SAP SuccessFactors Base URL.  
+
 
 ## Advance Option:
 

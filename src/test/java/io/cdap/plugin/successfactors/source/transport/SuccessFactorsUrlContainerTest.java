@@ -41,10 +41,10 @@ public class SuccessFactorsUrlContainerTest {
   @Test
   public void testGetTesterURL() {
     SuccessFactorsUrlContainer urlContainer = new SuccessFactorsUrlContainer(pluginConfig);
-    String expectedUrl = "https://baseurl/entityName?%24filter=filterOption&%24select=selectOption&%24" +
+    String expectedUrl = "https://baseurl/entityName?%24filter=filterOption&%24select=selectOption%2CexpandOption&%24" +
       "expand=expandOption&%24top=1";
     URL actualUrl = urlContainer.getTesterURL();
-    Assert.assertEquals(actualUrl.toString(), expectedUrl);
+    Assert.assertEquals(expectedUrl, actualUrl.toString());
   }
 
   @Test

@@ -121,7 +121,8 @@ public class SuccessFactorsTransporterTest {
       .baseURL("https://localhost:" + wireMockRule.httpsPort())
       .entityName("Entity")
       .username("test")
-      .password("secret");
+      .password("secret")
+      .expandOption("Products/Supplier");
     pluginConfig = pluginConfigBuilder.build();
     successFactorsURL = new SuccessFactorsUrlContainer(pluginConfig);
     transporter = new SuccessFactorsTransporter(pluginConfig.getConnection().getUsername(),
@@ -131,7 +132,7 @@ public class SuccessFactorsTransporterTest {
   @Test
   public void testCallSuccessFactors() throws TransportException {
     String expectedBody = "{\"d\": [{\"ID\": 0,\"Name\": \"Bread\"}}]}";
-    WireMock.stubFor(WireMock.get("/Entity?%24top=1")
+    WireMock.stubFor(WireMock.get("/Entity?%24expand=Products%2FSupplier&%24top=1")
                        .withBasicAuth(pluginConfig.getConnection().getUsername(),
                                       pluginConfig.getConnection().getPassword())
                        .willReturn(WireMock.ok()
@@ -139,6 +140,7 @@ public class SuccessFactorsTransporterTest {
                                      .withBody(expectedBody)));
     SuccessFactorsResponseContainer response = transporter
       .callSuccessFactors(successFactorsURL.getTesterURL(), MediaType.APPLICATION_JSON, SuccessFactorsService.TEST);
+
     Assert.assertEquals("SuccessFactors Service data version is same.",
                         "2.0",
                         response.getDataServiceVersion());
@@ -174,9 +176,10 @@ public class SuccessFactorsTransporterTest {
 
   @Test
   public void testConnectionTimeout() throws TransportException {
-    WireMock.stubFor(WireMock.get("/Entity?%24top=1")
+    WireMock.stubFor(WireMock.get("/Entity?%24expand=Products%2FSupplier&%24top=1")
                        .willReturn(WireMock.aResponse()
                                      .withFixedDelay(61_000)));
+
     exception.expectMessage(ResourceConstants.ERR_CALL_SERVICE_FAILURE.getMsgForKey(SuccessFactorsService.TEST));
     exception.expectCause(CoreMatchers.isA(SocketTimeoutException.class));
     transporter.callSuccessFactors(successFactorsURL.getTesterURL(), MediaType.APPLICATION_JSON,

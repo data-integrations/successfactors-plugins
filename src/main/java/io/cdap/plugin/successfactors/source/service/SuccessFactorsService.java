@@ -122,8 +122,14 @@ public class SuccessFactorsService {
     SuccessFactorsSchemaGenerator successFactorsSchemaGenerator = new SuccessFactorsSchemaGenerator(edmData);
 
     if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getSelectOption())) {
-      return successFactorsSchemaGenerator.buildSelectOutputSchema(pluginConfig.getEntityName(), pluginConfig.
-        getSelectOption());
+      if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getExpandOption())) {
+        String selectFieldValue = pluginConfig.getSelectOption().concat(SuccessFactorsUrlContainer.PROPERTY_SEPARATOR)
+          .concat(pluginConfig.getExpandOption());
+        return successFactorsSchemaGenerator.buildSelectOutputSchema(pluginConfig.getEntityName(), selectFieldValue);
+      } else {
+        return successFactorsSchemaGenerator.buildSelectOutputSchema(pluginConfig.getEntityName(), pluginConfig.
+          getSelectOption());
+      }
     } else if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getExpandOption())) {
       return successFactorsSchemaGenerator.buildExpandOutputSchema(pluginConfig.getEntityName(), pluginConfig.
         getExpandOption());
@@ -350,23 +356,48 @@ public class SuccessFactorsService {
     for (JsonNode objectNode : arrayNode) {
       String expandOption = pluginConfig.getExpandOption();
       if (expandOption.contains(SuccessFactorsUrlContainer.PROPERTY_SEPARATOR)) {
-        expandFieldList = Arrays.asList(pluginConfig.getExpandOption()
-                                          .split(SuccessFactorsUrlContainer.PROPERTY_SEPARATOR));
+        expandFieldList = Arrays.asList(expandOption.split(SuccessFactorsUrlContainer.PROPERTY_SEPARATOR));
+      } else if (expandOption.contains(SuccessFactorsUrlContainer.NAV_PROPERTY_SEPARATOR)) {
+        expandFieldList.add(expandOption.split(SuccessFactorsUrlContainer.NAV_PROPERTY_SEPARATOR)[0]);
       } else {
         expandFieldList.add(pluginConfig.getExpandOption());
       }
       for (String expandField : expandFieldList) {
         JsonNode expandedNode = objectNode.get(expandField);
-        Iterator<Map.Entry<String, JsonNode>> iterator = expandedNode.fields();
-        while (iterator.hasNext()) {
-          if (iterator.next().getValue().isContainerNode()) {
-            iterator.remove();
+        JsonNode expandedArrayNode = expandedNode.get(ODATA_RESULT_ELEMENT);
+        if (expandedArrayNode != null) {
+          // Expanded Array Node Results can contain more than one element
+          for (JsonNode node : expandedArrayNode) {
+            removeNode(node);
           }
+        } else {
+          removeNode(expandedNode);
         }
-
       }
     }
     InputStream filteredDataStream = new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
     return filteredDataStream;
+  }
+
+  /**
+   * Remove the unreadable nodes from the root node
+   * @param node JSON Node to be removed
+   */
+  private void removeNode(JsonNode node) {
+    Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
+    while (iterator.hasNext()) {
+      JsonNode nested = iterator.next().getValue();
+      if (nested.isContainerNode()) {
+        JsonNode nestedArrayNode = nested.get(ODATA_RESULT_ELEMENT);
+        if (nestedArrayNode != null) {
+          // Nested Array Node Results can contain more than one element
+          for (JsonNode n : nestedArrayNode) {
+            removeNode(n);
+          }
+        } else {
+          iterator.remove();
+        }
+      }
+    }
   }
 }

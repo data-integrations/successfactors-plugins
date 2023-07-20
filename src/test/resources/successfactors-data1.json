@@ -1,0 +1,161 @@
+{
+    "d": {
+        "results": [
+            {
+                "__metadata": {
+                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/Picklist('hrRanking')",
+                    "type": "SFOData.Picklist"
+                },
+                "picklistId": "hrRanking",
+                "picklistOptions": {
+                    "results": [
+                        {
+                            "__metadata": {
+                                "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663469L)",
+                                "type": "SFOData.PicklistOption"
+                            },
+                            "id": "663469",
+                            "minValue": "0",
+                            "externalCode": "A",
+                            "maxValue": "0",
+                            "optionValue": "-1",
+                            "sortOrder": 1,
+                            "mdfExternalCode": "A",
+                            "status": "ACTIVE",
+                            "parentPicklistOption": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663469L)/parentPicklistOption"
+                                }
+                            },
+                            "picklistLabels": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistLabel(locale='en_US',optionId=663469L)",
+                                            "type": "SFOData.PicklistLabel"
+                                        },
+                                        "optionId": "663469",
+                                        "locale": "en_US",
+                                        "id": "6945840",
+                                        "label": "A",
+                                        "picklistOption": {
+                                            "__deferred": {
+                                                "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistLabel(locale='en_US',optionId=663469L)/picklistOption"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "picklist": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663469L)/picklist"
+                                }
+                            },
+                            "childPicklistOptions": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663469L)/childPicklistOptions"
+                                }
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663470L)",
+                                "type": "SFOData.PicklistOption"
+                            },
+                            "id": "663470",
+                            "minValue": "0",
+                            "externalCode": "B",
+                            "maxValue": "0",
+                            "optionValue": "-1",
+                            "sortOrder": 1,
+                            "mdfExternalCode": "B",
+                            "status": "ACTIVE",
+                            "parentPicklistOption": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663470L)/parentPicklistOption"
+                                }
+                            },
+                            "picklistLabels": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistLabel(locale='en_US',optionId=663470L)",
+                                            "type": "SFOData.PicklistLabel"
+                                        },
+                                        "optionId": "663470",
+                                        "locale": "en_US",
+                                        "id": "6945855",
+                                        "label": "B",
+                                        "picklistOption": {
+                                            "__deferred": {
+                                                "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistLabel(locale='en_US',optionId=663470L)/picklistOption"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "picklist": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663470L)/picklist"
+                                }
+                            },
+                            "childPicklistOptions": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663470L)/childPicklistOptions"
+                                }
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663471L)",
+                                "type": "SFOData.PicklistOption"
+                            },
+                            "id": "663471",
+                            "minValue": "0",
+                            "externalCode": "C",
+                            "maxValue": "0",
+                            "optionValue": "-1",
+                            "sortOrder": 1,
+                            "mdfExternalCode": "C",
+                            "status": "ACTIVE",
+                            "parentPicklistOption": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663471L)/parentPicklistOption"
+                                }
+                            },
+                            "picklistLabels": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistLabel(locale='en_US',optionId=663471L)",
+                                            "type": "SFOData.PicklistLabel"
+                                        },
+                                        "optionId": "663471",
+                                        "locale": "en_US",
+                                        "id": "6945870",
+                                        "label": "C",
+                                        "picklistOption": {
+                                            "__deferred": {
+                                                "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistLabel(locale='en_US',optionId=663471L)/picklistOption"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "picklist": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663471L)/picklist"
+                                }
+                            },
+                            "childPicklistOptions": {
+                                "__deferred": {
+                                    "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/PicklistOption(663471L)/childPicklistOptions"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

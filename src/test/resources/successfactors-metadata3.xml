@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:atom="http://www.w3.org/2005/Atom">
+  <edmx:DataServices m:DataServiceVersion="2.0" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <Schema Namespace="SFODataSet" xmlns="http://schemas.microsoft.com/ado/2008/09/edm" xmlns:sf="http://www.successfactors.com/edm/sf" xmlns:sap="http://www.successfactors.com/edm/sap">
+      <EntityContainer Name="EntityContainer" m:IsDefaultEntityContainer="true">
+        <EntitySet Name="PicklistOption" EntityType="SFOData.PicklistOption" sap:label="PicklistOption" sap:creatable="true" sap:updatable="true" sap:upsertable="false" sap:deletable="false">
+          <Documentation>
+            <Summary>PicklistOption</Summary>
+            <LongDescription>Contains information related to pick list options.</LongDescription>
+            <sap:tagcollection>
+              <sap:tag>Foundation/Platform (PLT)</sap:tag>
+            </sap:tagcollection>
+          </Documentation>
+        </EntitySet>
+        <EntitySet Name="Picklist" EntityType="SFOData.Picklist" sap:label="Picklist" sap:creatable="false" sap:updatable="false" sap:upsertable="false" sap:deletable="false">
+          <Documentation>
+            <Summary>Picklist</Summary>
+            <LongDescription>Contains information related to pick lists.</LongDescription>
+            <sap:tagcollection>
+              <sap:tag>Foundation/Platform (PLT)</sap:tag>
+            </sap:tagcollection>
+          </Documentation>
+        </EntitySet>
+        <EntitySet Name="PicklistLabel" EntityType="SFOData.PicklistLabel" sap:label="PicklistLabel" sap:creatable="true" sap:updatable="true" sap:upsertable="true" sap:deletable="false">
+          <Documentation>
+            <Summary>PicklistLabel</Summary>
+            <LongDescription>Contains pick list label information.</LongDescription>
+            <sap:tagcollection>
+              <sap:tag>Foundation/Platform (PLT)</sap:tag>
+            </sap:tagcollection>
+          </Documentation>
+        </EntitySet>
+        <AssociationSet Name="picklistoption_rel_childpicklistoptions" Association="SFOData.picklistoption_rel_childpicklistoptions">
+          <End EntitySet="PicklistOption" Role="picklistoption"></End>
+          <End EntitySet="PicklistOption" Role="childpicklistoptions"></End>
+        </AssociationSet>
+        <AssociationSet Name="picklist_rel_picklistoption" Association="SFOData.picklist_rel_picklistoption">
+          <End EntitySet="Picklist" Role="picklist"></End>
+          <End EntitySet="PicklistOption" Role="picklistoption"></End>
+        </AssociationSet>
+        <AssociationSet Name="picklistoption_rel_picklistlabel" Association="SFOData.picklistoption_rel_picklistlabel">
+          <End EntitySet="PicklistOption" Role="picklistoption"></End>
+          <End EntitySet="PicklistLabel" Role="picklistlabel"></End>
+        </AssociationSet>
+        <AssociationSet Name="picklistoption_rel_parentpicklistoption" Association="SFOData.picklistoption_rel_parentpicklistoption">
+          <End EntitySet="PicklistOption" Role="picklistoption"></End>
+          <End EntitySet="PicklistOption" Role="parentpicklistoption"></End>
+        </AssociationSet>
+      </EntityContainer>
+    </Schema>
+    <Schema Namespace="SFOData" xmlns="http://schemas.microsoft.com/ado/2008/09/edm" xmlns:sf="http://www.successfactors.com/edm/sf" xmlns:sap="http://www.successfactors.com/edm/sap">
+      <EntityType Name="PicklistOption">
+        <Key>
+          <PropertyRef Name="id"></PropertyRef>
+        </Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="true" sap:required="false" sap:creatable="true" sap:updatable="true" sap:upsertable="false" sap:visible="true" sap:sortable="false" sap:filterable="true" MaxLength="256" sap:label="externalCode"></Property>
+        <Property Name="id" Type="Edm.Int64" Nullable="false" sap:required="false" sap:creatable="false" sap:updatable="true" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" sap:label="id"></Property>
+        <Property Name="localeLabel" Type="Edm.String" Nullable="true" sap:required="false" sap:creatable="false" sap:updatable="false" sap:upsertable="false" sap:visible="true" sap:sortable="false" sap:filterable="false" sap:label="localeLabel"></Property>
+        <Property Name="maxValue" Type="Edm.Double" Nullable="true" sap:required="false" sap:creatable="true" sap:updatable="true" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" sap:label="maxValue"></Property>
+        <Property Name="mdfExternalCode" Type="Edm.String" Nullable="true" sap:required="false" sap:creatable="false" sap:updatable="false" sap:upsertable="false" sap:visible="true" sap:sortable="false" sap:filterable="true" MaxLength="256" sap:label="mdfExternalCode"></Property>
+        <Property Name="minValue" Type="Edm.Double" Nullable="true" sap:required="false" sap:creatable="true" sap:updatable="true" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" sap:label="minValue"></Property>
+        <Property Name="optionValue" Type="Edm.Double" Nullable="true" sap:required="false" sap:creatable="true" sap:updatable="true" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" sap:label="optionValue"></Property>
+        <Property Name="sortOrder" Type="Edm.Int32" Nullable="true" sap:required="false" sap:creatable="true" sap:updatable="true" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" sap:label="sortOrder"></Property>
+        <Property Name="status" Type="Edm.String" Nullable="true" sap:required="false" sap:creatable="true" sap:updatable="true" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" MaxLength="9" sap:label="status"></Property>
+        <NavigationProperty Name="childPicklistOptions" sap:required="false" sap:creatable="false" sap:updatable="false" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" Relationship="SFOData.picklistoption_rel_childpicklistoptions" FromRole="picklistoption" ToRole="childpicklistoptions" sap:label="childPicklistOptions"></NavigationProperty>
+        <NavigationProperty Name="parentPicklistOption" sap:required="false" sap:creatable="true" sap:updatable="true" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" Relationship="SFOData.picklistoption_rel_parentpicklistoption" FromRole="picklistoption" ToRole="parentpicklistoption" sap:label="parentPicklistOption"></NavigationProperty>
+        <NavigationProperty Name="picklist" sap:required="true" sap:creatable="true" sap:updatable="false" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" Relationship="SFOData.picklist_rel_picklistoption" FromRole="picklistoption" ToRole="picklist" sap:label="picklist"></NavigationProperty>
+        <NavigationProperty Name="picklistLabels" sap:required="false" sap:creatable="true" sap:updatable="false" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" Relationship="SFOData.picklistoption_rel_picklistlabel" FromRole="picklistoption" ToRole="picklistlabel" sap:label="picklistLabels"></NavigationProperty>
+      </EntityType>
+      <EntityType Name="Picklist">
+        <Key>
+          <PropertyRef Name="picklistId"></PropertyRef>
+        </Key>
+        <Property Name="picklistId" Type="Edm.String" Nullable="false" sap:required="true" sap:creatable="false" sap:updatable="false" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" MaxLength="64" sap:label="picklistId"></Property>
+        <NavigationProperty Name="picklistOptions" sap:required="true" sap:creatable="false" sap:updatable="false" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" Relationship="SFOData.picklist_rel_picklistoption" FromRole="picklist" ToRole="picklistoption" sap:label="picklistOptions"></NavigationProperty>
+      </EntityType>
+      <EntityType Name="PicklistLabel">
+        <Key>
+          <PropertyRef Name="locale"></PropertyRef>
+          <PropertyRef Name="optionId"></PropertyRef>
+        </Key>
+        <Property Name="id" Type="Edm.Int64" Nullable="true" sap:required="false" sap:creatable="false" sap:updatable="false" sap:upsertable="false" sap:visible="true" sap:sortable="true" sap:filterable="true" sap:label="id"></Property>
+        <Property Name="label" Type="Edm.String" Nullable="true" sap:required="true" sap:creatable="true" sap:updatable="true" sap:upsertable="true" sap:visible="true" sap:sortable="true" sap:filterable="true" MaxLength="255" sap:label="label"></Property>
+        <Property Name="locale" Type="Edm.String" Nullable="false" sap:required="true" sap:creatable="true" sap:updatable="true" sap:upsertable="true" sap:visible="true" sap:sortable="true" sap:filterable="true" MaxLength="32" sap:label="locale"></Property>
+        <Property Name="optionId" Type="Edm.Int64" Nullable="false" sap:required="true" sap:creatable="true" sap:updatable="true" sap:upsertable="true" sap:visible="true" sap:sortable="true" sap:filterable="true" sap:inlineRequired="false" sap:label="optionId"></Property>
+        <NavigationProperty Name="picklistOption" sap:required="false" sap:creatable="true" sap:updatable="false" sap:upsertable="true" sap:visible="true" sap:sortable="true" sap:filterable="true" Relationship="SFOData.picklistoption_rel_picklistlabel" FromRole="picklistlabel" ToRole="picklistoption" sap:label="picklistOption"></NavigationProperty>
+      </EntityType>
+      <Association Name="picklistoption_rel_childpicklistoptions">
+        <End Type="SFOData.PicklistOption" Multiplicity="1" Role="picklistoption"></End>
+        <End Type="SFOData.PicklistOption" Multiplicity="*" Role="childpicklistoptions"></End>
+      </Association>
+      <Association Name="picklist_rel_picklistoption">
+        <End Type="SFOData.Picklist" Multiplicity="1" Role="picklist"></End>
+        <End Type="SFOData.PicklistOption" Multiplicity="*" Role="picklistoption"></End>
+      </Association>
+      <Association Name="picklistoption_rel_picklistlabel">
+        <End Type="SFOData.PicklistOption" Multiplicity="1" Role="picklistoption"></End>
+        <End Type="SFOData.PicklistLabel" Multiplicity="*" Role="picklistlabel"></End>
+      </Association>
+      <Association Name="picklistoption_rel_parentpicklistoption">
+        <End Type="SFOData.PicklistOption" Multiplicity="1" Role="picklistoption"></End>
+        <End Type="SFOData.PicklistOption" Multiplicity="0..1" Role="parentpicklistoption"></End>
+      </Association>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

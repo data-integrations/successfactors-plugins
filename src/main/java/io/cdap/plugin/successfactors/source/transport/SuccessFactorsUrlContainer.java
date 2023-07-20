@@ -18,7 +18,6 @@ package io.cdap.plugin.successfactors.source.transport;
 
 import io.cdap.plugin.successfactors.common.exception.SuccessFactorsServiceException;
 import io.cdap.plugin.successfactors.common.exception.TransportException;
-import io.cdap.plugin.successfactors.common.util.ResourceConstants;
 import io.cdap.plugin.successfactors.common.util.SuccessFactorsUtil;
 import io.cdap.plugin.successfactors.source.config.SuccessFactorsPluginConfig;
 import io.cdap.plugin.successfactors.source.service.SuccessFactorsService;
@@ -28,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.Arrays;
 import javax.annotation.Nullable;
 
 /**
@@ -40,6 +40,7 @@ import javax.annotation.Nullable;
 public class SuccessFactorsUrlContainer {
 
   public static final String PROPERTY_SEPARATOR = ",";
+  public static final String NAV_PROPERTY_SEPARATOR = "/";
   private static final Logger LOG = LoggerFactory.getLogger(SuccessFactorsUrlContainer.class);
   private static final String TOP_OPTION = "$top";
   private static final String SKIP_OPTION = "$skip";
@@ -111,6 +112,7 @@ public class SuccessFactorsUrlContainer {
    * 3. $expand
    *
    * @param urlBuilder builds the final url
+   * @param isDataFetch flag to determine whether to fetch non-navigational properties or not
    * @return initialize the passed {@code HttpUrl.Builder} with the provided query options
    * in {@code SuccessFactorsPluginConfig} and return it.
    */
@@ -118,22 +120,30 @@ public class SuccessFactorsUrlContainer {
     if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getFilterOption())) {
       urlBuilder.addQueryParameter(FILTER_OPTION, pluginConfig.getFilterOption());
     }
+    
     if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getSelectOption())) {
-      urlBuilder.addQueryParameter(SELECT_OPTION, pluginConfig.getSelectOption());
-    } else if (isDataFetch) {
+      if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getExpandOption())) {
+        String selectFieldValue = pluginConfig.getSelectOption().concat(PROPERTY_SEPARATOR)
+          .concat(pluginConfig.getExpandOption());
+        urlBuilder.addQueryParameter(SELECT_OPTION, selectFieldValue);
+      } else {
+        urlBuilder.addQueryParameter(SELECT_OPTION, pluginConfig.getSelectOption());
+      }
+    } else if (getExpandLevel() <= 1  && isDataFetch) {
       SuccessFactorsService successFactorsService = SuccessFactorsUtil.getSuccessFactorsService(pluginConfig);
       try {
-        StringBuilder selectFieldValue = new StringBuilder(String.join(PROPERTY_SEPARATOR, successFactorsService.
+        StringBuilder selectNonNav = new StringBuilder(String.join(PROPERTY_SEPARATOR, successFactorsService.
           getNonNavigationalProperties()));
         if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getExpandOption())) {
-          selectFieldValue.append(PROPERTY_SEPARATOR).append(pluginConfig.getExpandOption());
+          selectNonNav.append(PROPERTY_SEPARATOR).append(pluginConfig.getExpandOption());
         }
-        urlBuilder.addQueryParameter(SELECT_OPTION, selectFieldValue.toString());
+        urlBuilder.addQueryParameter(SELECT_OPTION, selectNonNav.toString());
 
       } catch (TransportException | SuccessFactorsServiceException | EdmException e) {
-        e.printStackTrace();
+        LOG.error("Exception occurred while getting non-navigational properties for building query options {}", e);
       }
     }
+
     if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getExpandOption())) {
       urlBuilder.addQueryParameter(EXPAND_OPTION, pluginConfig.getExpandOption());
     }
@@ -185,5 +195,18 @@ public class SuccessFactorsUrlContainer {
     URL dataURL = builder.build().url();
 
     return dataURL;
+  }
+
+  /*
+   * Get the level up to which the entity has been expanded.
+   */
+  private int getExpandLevel() {
+    int expandLevel = 0;
+    if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getExpandOption())) {
+      expandLevel = Arrays.asList(
+          pluginConfig.getExpandOption().split(SuccessFactorsUrlContainer.NAV_PROPERTY_SEPARATOR))
+        .size();
+    }
+    return expandLevel;
   }
 }

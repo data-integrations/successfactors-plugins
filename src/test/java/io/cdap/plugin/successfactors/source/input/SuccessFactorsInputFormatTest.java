@@ -55,6 +55,7 @@ public class SuccessFactorsInputFormatTest {
                                                               "filterOption",
                                                               "selectOption",
                                                               "expandOption",
+                                                              "additionalQueryParameters",
                                                               null));
   }
 

@@ -132,6 +132,10 @@ For example: customManager. If an entity has hierarchical records, the source ou
 entity it reads, with each record containing an additional field that holds the value from the navigational property 
 specified in the Expand Fields.
 
+**Additional Query Parameters (M, O)**: Additional Query Parameters that can be added with the OData url. 
+e.g. Effective Dated queries.Multiple parameters can be added as separated by '&' sign. 
+e.g. fromDate=2023-01-01&toDate=2023-01-31
+
 **Associated Entity Name (M, O)**: Name of the Associated Entity to be extracted
 e.g.: EmpCompensationCalculated
 

@@ -50,6 +50,7 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
   private static final String NAME_SCHEMA = "schema";
   private static final String PAGINATION_TYPE = "paginationType";
   public static final String EXPAND_OPTION = "expandOption";
+  public static final String ADDITIONAL_QUERY_PARAMETERS = "additionalQueryParameters";
   private static final String COMMON_ACTION = ResourceConstants.ERR_MISSING_PARAM_OR_MACRO_ACTION.getMsgForKey();
   private static final Pattern PATTERN = Pattern.compile("\\(.*\\)");
   private static final String SAP_SUCCESSFACTORS_ENTITY_NAME = "Entity Name";
@@ -88,6 +89,13 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
     "each record containing an additional field that holds the value from the navigational property specified in " +
     "the Expand Fields.")
   private final String expandOption;
+
+  @Name(ADDITIONAL_QUERY_PARAMETERS)
+  @Nullable
+  @Macro
+  @Description("Additional Query Parameters that can be added with the OData url. e.g. Effective Dated queries." +
+    "Multiple parameters can be added as separated by '&' sign. e.g. fromDate=2023-01-01&toDate=2023-01-31")
+  private final String additionalQueryParameters;
 
   /**
    * Basic parameters.
@@ -130,6 +138,7 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
                                     @Nullable String filterOption,
                                     @Nullable String selectOption,
                                     @Nullable String expandOption,
+                                    @Nullable String additionalQueryParameters,
                                     String paginationType) {
     this.connection = new SuccessFactorsConnectorConfig(username, password, baseURL);
     this.referenceName = referenceName;
@@ -139,6 +148,7 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
     this.selectOption = selectOption;
     this.expandOption = expandOption;
     this.paginationType = paginationType;
+    this.additionalQueryParameters = additionalQueryParameters;
   }
   @Nullable
   public SuccessFactorsConnectorConfig getConnection() {
@@ -189,6 +199,11 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
 
   public String getPaginationType() {
     return this.paginationType;
+  }
+
+  @Nullable
+  public String getAdditionalQueryParameters() {
+    return this.additionalQueryParameters;
   }
 
   /**
@@ -284,6 +299,7 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
     private String selectOption;
     private String expandOption;
     private String paginationType;
+    private String additionalQueryParameters;
 
     public Builder referenceName(String referenceName) {
       this.referenceName = referenceName;
@@ -335,9 +351,15 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
       return this;
     }
 
+    public Builder additionalQueryParameters(@Nullable String additionalQueryParameters) {
+      this.additionalQueryParameters = additionalQueryParameters;
+      return this;
+    }
+
     public SuccessFactorsPluginConfig build() {
       return new SuccessFactorsPluginConfig(referenceName, baseURL, entityName, associateEntityName, username, password,
-                                            filterOption, selectOption, expandOption, paginationType);
+                                            filterOption, selectOption, expandOption, additionalQueryParameters,
+                                            paginationType);
     }
   }
 }

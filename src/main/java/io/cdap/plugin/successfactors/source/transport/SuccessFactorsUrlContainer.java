@@ -117,6 +117,9 @@ public class SuccessFactorsUrlContainer {
    * in {@code SuccessFactorsPluginConfig} and return it.
    */
   private HttpUrl.Builder buildQueryOptions(HttpUrl.Builder urlBuilder, Boolean isDataFetch) {
+    if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getAdditionalQueryParameters())) {
+      urlBuilder.query(pluginConfig.getAdditionalQueryParameters());
+    }
     if (SuccessFactorsUtil.isNotNullOrEmpty(pluginConfig.getFilterOption())) {
       urlBuilder.addQueryParameter(FILTER_OPTION, pluginConfig.getFilterOption());
     }

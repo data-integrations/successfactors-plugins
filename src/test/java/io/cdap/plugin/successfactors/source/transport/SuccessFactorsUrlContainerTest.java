@@ -36,13 +36,14 @@ public class SuccessFactorsUrlContainerTest {
                                                               "filterOption",
                                                               "selectOption",
                                                               "expandOption",
+                                                              "",
                                                               null));
   }
   @Test
   public void testGetTesterURL() {
     SuccessFactorsUrlContainer urlContainer = new SuccessFactorsUrlContainer(pluginConfig);
-    String expectedUrl = "https://baseurl/entityName?%24filter=filterOption&%24select=selectOption%2CexpandOption&%24" +
-      "expand=expandOption&%24top=1";
+    String expectedUrl = "https://baseurl/entityName?%24filter=filterOption&%24select=" +
+      "selectOption%2CexpandOption&%24expand=expandOption&%24top=1";
     URL actualUrl = urlContainer.getTesterURL();
     Assert.assertEquals(expectedUrl, actualUrl.toString());
   }
@@ -61,5 +62,24 @@ public class SuccessFactorsUrlContainerTest {
     String expectedUrl = "https://baseurl/entityName/$count?%24filter=filterOption";
     URL actualUrl = urlContainer.getTotalRecordCountURL();
     Assert.assertEquals(actualUrl.toString(), expectedUrl);
+  }
+
+  @Test
+  public void testGetURLWithAdditionalQueryParameters() {
+    pluginConfig = Mockito.spy(new SuccessFactorsPluginConfig("referenceName",
+                                                              "https://successfactors.com",
+                                                              "EmpJob",
+                                                              "associatedEntity",
+                                                              "username",
+                                                              "password",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              "startDate=2023-01-01&endDate=2023-02-02",
+                                                              null));
+    SuccessFactorsUrlContainer urlContainer = new SuccessFactorsUrlContainer(pluginConfig);
+    String expectedUrl = "https://successfactors.com/EmpJob?startDate=2023-01-01&endDate=2023-02-02&%24top=1";
+    URL actualUrl = urlContainer.getTesterURL();
+    Assert.assertEquals(expectedUrl, actualUrl.toString());
   }
 }

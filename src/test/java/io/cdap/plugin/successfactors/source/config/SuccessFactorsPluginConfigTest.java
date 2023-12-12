@@ -19,6 +19,8 @@ import io.cdap.cdap.etl.api.validation.ValidationException;
 import io.cdap.cdap.etl.api.validation.ValidationFailure;
 import io.cdap.cdap.etl.mock.validation.MockFailureCollector;
 import io.cdap.plugin.successfactors.common.util.ResourceConstants;
+import io.cdap.plugin.successfactors.connector.SuccessFactorsConnectorConfig;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +45,7 @@ public class SuccessFactorsPluginConfigTest {
       .referenceName(REFERENCE_NAME)
       .baseURL(BASE_URL)
       .entityName(ENTITY_NAME)
+      .authType(SuccessFactorsConnectorConfig.BASIC_AUTH)
       .username(USER_NAME)
       .password(PASSWORD);
   }
@@ -173,5 +176,50 @@ public class SuccessFactorsPluginConfigTest {
     Assert.assertEquals("Base URL not trimmed", "http://localhost:5000", pluginConfig.getConnection().getBaseURL());
     Assert.assertEquals("Entity name not trimmed", "entity-name", pluginConfig.getEntityName());
     Assert.assertEquals("Select option not trimmed", "col1,col2,parent/col1,col3", pluginConfig.getSelectOption());
+  }
+
+  @Test
+  public void testWithEmptyOauthCreateTokenParameters() {
+    SuccessFactorsPluginConfig pluginConfig = pluginConfigBuilder
+      .entityName("entity")
+      .authType("oAuth2")
+      .assertionTokenType("createToken")
+      .username(null)
+      .password(PASSWORD)
+      .setPrivateKey(null)
+      .setUserId(null)
+      .setTokenURL(null)
+      .build();
+    try {
+      pluginConfig.validatePluginParameters(failureCollector);
+      Assert.fail("Username is null");
+    } catch (ValidationException ve) {
+      List<ValidationFailure> failures = ve.getFailures();
+      Assert.assertEquals(5, failures.size());
+      Assert.assertEquals(ResourceConstants.ERR_MISSING_PARAM_PREFIX.getMsgForKey("clientId"),
+        failures.get(0).getMessage());
+    }
+  }
+
+  @Test
+  public void testWithEmptyOauthEnterTokenParameters() {
+    SuccessFactorsPluginConfig pluginConfig = pluginConfigBuilder
+      .entityName("entity")
+      .authType("oAuth2")
+      .assertionTokenType("enterToken")
+      .username(null)
+      .password(PASSWORD)
+      .assertionToken(null)
+      .setClientId(null)
+      .build();
+    try {
+      pluginConfig.validatePluginParameters(failureCollector);
+      Assert.fail("Username is null");
+    } catch (ValidationException ve) {
+      List<ValidationFailure> failures = ve.getFailures();
+      Assert.assertEquals(3, failures.size());
+      Assert.assertEquals(ResourceConstants.ERR_MISSING_PARAM_PREFIX.getMsgForKey("clientId"),
+        failures.get(0).getMessage());
+    }
   }
 }

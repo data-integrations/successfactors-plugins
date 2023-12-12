@@ -80,8 +80,10 @@ public class SuccessFactorsSchemaGeneratorTest {
   public void testBuildExpandOutputSchema() throws SuccessFactorsServiceException {
     SuccessFactorsPluginConfig pluginConfig = new SuccessFactorsPluginConfig("referenceName",
       "baseUR", "entityName", "associateEntityName", "username",
-      "password", "filterOption", "selectOption", "expandOption",
-      "additionalQueryParameters", "paginationType");
+      "password", "",
+      "", "", "", "", "", "", "",   "",
+      "filterOption", "selectOption", "expandOption", "additionalQueryParameters",
+      "paginationType");
     Schema outputSchema = generator.buildExpandOutputSchema("Benefit",
                                                             "eligibleBenefits", "associatedEntity", pluginConfig);
     int lastIndex = outputSchema.getFields().size() - 1;
@@ -154,7 +156,8 @@ public class SuccessFactorsSchemaGeneratorTest {
   public void testInvalidExpandName() throws SuccessFactorsServiceException {
     SuccessFactorsPluginConfig pluginConfig = new SuccessFactorsPluginConfig("referenceName",
       "baseUR", "entityName", "associateEntityName", "username",
-      "password", "filterOption", "selectOption", "expandOption",
+      "password", "",
+      "", "", "", "", "", "", "", "", "filterOption", "selectOption", "expandOption",
       "additionalQueryParameters", "paginationType");
     exception.expectMessage("'assEntity' not found in the 'Benefit' entity.");
     generator.buildExpandOutputSchema("Benefit", "INVALID-NAVIGATION-NAME",

@@ -275,7 +275,6 @@ public class SuccessFactorsService {
           String nextLink = dataFeed.getFeedMetadata().getNextLink();
           if (nextLink != null) {
             nextUrl = nextLink;
-            LOG.info("Next page url: {}", nextLink);
           }
         }
         return dataFeed;

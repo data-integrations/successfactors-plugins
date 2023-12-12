@@ -135,12 +135,22 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
                                     String associateEntityName,
                                     @Nullable String username,
                                     @Nullable String password,
+                                    @Nullable String tokenURL,
+                                    @Nullable String clientId,
+                                    @Nullable String privateKey,
+                                    @Nullable String userId,
+                                    @Nullable String samlUsername,
+                                    @Nullable String assertionToken,
+                                    @Nullable String companyId,
+                                    String authType,
+                                    String assertionTokenType,
                                     @Nullable String filterOption,
                                     @Nullable String selectOption,
                                     @Nullable String expandOption,
                                     @Nullable String additionalQueryParameters,
                                     String paginationType) {
-    this.connection = new SuccessFactorsConnectorConfig(username, password, baseURL);
+    this.connection = new SuccessFactorsConnectorConfig(username, password, tokenURL, clientId, privateKey, userId,
+      companyId, baseURL, authType, assertionTokenType, samlUsername, assertionToken);
     this.referenceName = referenceName;
     this.entityName = entityName;
     this.associateEntityName = associateEntityName;
@@ -150,6 +160,7 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
     this.paginationType = paginationType;
     this.additionalQueryParameters = additionalQueryParameters;
   }
+
   @Nullable
   public SuccessFactorsConnectorConfig getConnection() {
     return connection;
@@ -300,6 +311,15 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
     private String expandOption;
     private String paginationType;
     private String additionalQueryParameters;
+    private String tokenURL;
+    private String clientId;
+    private String privateKey;
+    private String userId;
+    private String samlUsername;
+    private String assertionToken;
+    private String companyId;
+    private String authType;
+    private String assertionTokenType;
 
     public Builder referenceName(String referenceName) {
       this.referenceName = referenceName;
@@ -346,8 +366,43 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
       return this;
     }
 
+    public Builder authType(@Nullable String authType) {
+      this.authType = authType;
+      return this;
+    }
+
+    public Builder setTokenURL(@Nullable String tokenURL) {
+      this.tokenURL = tokenURL;
+      return this;
+    }
+
+    public Builder setClientId(@Nullable String clientId) {
+      this.clientId = clientId;
+      return this;
+    }
+
+    public Builder setPrivateKey(@Nullable String privateKey) {
+      this.privateKey = privateKey;
+      return this;
+    }
+
+    public Builder setUserId(@Nullable String userId) {
+      this.userId = userId;
+      return this;
+    }
+
     public Builder paginationType(@Nullable String paginationType) {
       this.paginationType = paginationType;
+      return this;
+    }
+
+    public Builder assertionTokenType(@Nullable String assertionTokenType) {
+      this.assertionTokenType = assertionTokenType;
+      return this;
+    }
+
+    public Builder assertionToken(@Nullable String assertionToken) {
+      this.assertionToken = assertionToken;
       return this;
     }
 
@@ -358,8 +413,9 @@ public class SuccessFactorsPluginConfig extends PluginConfig {
 
     public SuccessFactorsPluginConfig build() {
       return new SuccessFactorsPluginConfig(referenceName, baseURL, entityName, associateEntityName, username, password,
-                                            filterOption, selectOption, expandOption, additionalQueryParameters,
-                                            paginationType);
+                                            tokenURL, clientId, privateKey, userId, samlUsername, assertionToken,
+                                            companyId, authType, assertionTokenType, filterOption, selectOption,
+                                            expandOption, additionalQueryParameters, paginationType);
     }
   }
 }

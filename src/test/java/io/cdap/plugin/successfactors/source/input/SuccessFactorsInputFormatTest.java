@@ -22,6 +22,7 @@ import io.cdap.plugin.successfactors.source.config.SuccessFactorsPluginConfig;
 import io.cdap.plugin.successfactors.source.metadata.TestSuccessFactorsUtil;
 import io.cdap.plugin.successfactors.source.service.SuccessFactorsService;
 import io.cdap.plugin.successfactors.source.transport.SuccessFactorsTransporter;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.olingo.odata2.api.edm.Edm;
@@ -46,15 +47,13 @@ public class SuccessFactorsInputFormatTest {
 
   @Before
   public void initializeTests() {
-    pluginConfig = Mockito.spy(new SuccessFactorsPluginConfig("referenceName",
-                                                              "baseURL",
-                                                              "entityName",
-                                                              null,
-                                                              "username",
-                                                              "password",
-                                                              "filterOption",
-                                                              "selectOption",
-                                                              "expandOption",
+    pluginConfig = Mockito.spy(new SuccessFactorsPluginConfig("referenceName", "baseURL",
+                                                              "entityName", null,
+                                                              "username", "password", "",
+                                                              "", "", "", "",
+                                                              "", "", "",
+                                                              "", "filterOption",
+                                                              "selectOption", "expandOption",
                                                               "additionalQueryParameters",
                                                               null));
   }

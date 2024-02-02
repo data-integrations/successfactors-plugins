@@ -24,9 +24,12 @@ import com.github.rholder.retry.WaitStrategies;
 import io.cdap.cdap.api.retry.RetryableException;
 import io.cdap.plugin.successfactors.common.exception.TransportException;
 import io.cdap.plugin.successfactors.common.util.ResourceConstants;
+import io.cdap.plugin.successfactors.common.util.SuccessFactorsAccessToken;
+import io.cdap.plugin.successfactors.connector.SuccessFactorsConnectorConfig;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +37,13 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.rmi.ConnectException;
 import java.util.Base64;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -50,15 +56,12 @@ public class SuccessFactorsTransporter {
   private static final long CONNECTION_TIMEOUT = 300;
   private static final long WAIT_TIME = 5;
   private static final long MAX_NUMBER_OF_RETRY_ATTEMPTS = 5;
-
-  private final String username;
-  private final String password;
+  private static String accessToken;
   private Response response;
+  private final SuccessFactorsConnectorConfig config;
 
-  public SuccessFactorsTransporter(String username, String password) {
-    this.username = username;
-    this.password = password;
-
+  public SuccessFactorsTransporter(SuccessFactorsConnectorConfig config) {
+    this.config = config;
   }
 
   /**
@@ -128,6 +131,8 @@ public class SuccessFactorsTransporter {
 
     Retryer<Boolean> retryer = RetryerBuilder.<Boolean>newBuilder()
       .retryIfExceptionOfType(RetryableException.class)
+      .retryIfExceptionOfType(ExecutionException.class)
+      .retryIfExceptionOfType(ConnectException.class)
       .withWaitStrategy(WaitStrategies.exponentialWait(WAIT_TIME, TimeUnit.SECONDS))
       .withStopStrategy(StopStrategies.stopAfterAttempt((int) MAX_NUMBER_OF_RETRY_ATTEMPTS))
       .build();
@@ -135,8 +140,8 @@ public class SuccessFactorsTransporter {
     try {
       retryer.call(fetchRecords);
     } catch (RetryException | ExecutionException e) {
-      LOG.error("Data Recovery failed for URL {}.", endpoint);
-      throw new IOException();
+      LOG.error("Data Recovery failed for URL {}.", endpoint, e);
+      throw new IOException("Failed after retries", e.getCause());
     }
 
     return response;
@@ -153,9 +158,48 @@ public class SuccessFactorsTransporter {
    */
   private Response transport(URL endpoint, String mediaType) throws IOException, TransportException {
     OkHttpClient enhancedOkHttpClient = getConfiguredClient().build();
-    Request req = buildRequest(endpoint, mediaType);
+    Request req = null;
 
+    if (config.getAuthType() == null || config.getAuthType().equals(SuccessFactorsConnectorConfig.BASIC_AUTH)) {
+      req = buildRequest(endpoint, mediaType);
+    } else {
+      if (accessToken == null || accessToken.isEmpty()) {
+        accessToken = getAccessToken();
+      }
+
+      req = buildRequestWithBearerToken(endpoint, mediaType, accessToken);
+
+      try {
+        Response response = enhancedOkHttpClient.newCall(req).execute();
+
+        // If the response code is 403 (Forbidden), attempt to refresh access token
+        if (response.code() == HttpURLConnection.HTTP_FORBIDDEN) {
+          LOG.info("refreshing access token");
+          accessToken = getAccessToken(); // Refresh access token
+          req = buildRequestWithBearerToken(endpoint, mediaType, accessToken);
+          response = enhancedOkHttpClient.newCall(req).execute();
+        }
+
+        return response;
+      } catch (IOException e) {
+        throw new IOException("Failed to execute the request", e);
+      }
+    }
     return enhancedOkHttpClient.newCall(req).execute();
+  }
+
+  private String getAccessToken() throws IOException {
+    SuccessFactorsAccessToken token = new SuccessFactorsAccessToken(config);
+
+    try {
+      if (config.getAssertionToken() == null) {
+        return token.getAccessToken(token.getAssertionToken());
+      } else {
+        return token.getAccessToken(config.getAssertionToken());
+      }
+    } catch (IOException e) {
+      throw new IOException("Unable to fetch access token", e);
+    }
   }
 
   /**
@@ -218,11 +262,20 @@ public class SuccessFactorsTransporter {
    */
   private String getAuthenticationKey() {
     return "Basic " + Base64.getEncoder()
-      .encodeToString(username
+      .encodeToString(config.getUsername()
                         .concat(":")
-                        .concat(password)
+                        .concat(config.getPassword())
                         .getBytes(StandardCharsets.UTF_8)
       );
+  }
+
+  private Request buildRequestWithBearerToken(URL endpoint, String mediaType, String accessToken) {
+    return new Request.Builder()
+      .addHeader("Authorization", "Bearer " + accessToken)
+      .addHeader("Accept", mediaType)
+      .get()
+      .url(endpoint)
+      .build();
   }
 
   /**

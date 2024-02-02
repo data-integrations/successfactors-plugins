@@ -39,12 +39,14 @@ import io.cdap.plugin.successfactors.common.util.ExceptionParser;
 import io.cdap.plugin.successfactors.common.util.ResourceConstants;
 import io.cdap.plugin.successfactors.common.util.SuccessFactorsUtil;
 import io.cdap.plugin.successfactors.connector.SuccessFactorsConnector;
+import io.cdap.plugin.successfactors.connector.SuccessFactorsConnectorConfig;
 import io.cdap.plugin.successfactors.source.config.SuccessFactorsPluginConfig;
 import io.cdap.plugin.successfactors.source.input.SuccessFactorsInputFormat;
 import io.cdap.plugin.successfactors.source.input.SuccessFactorsInputSplit;
 import io.cdap.plugin.successfactors.source.input.SuccessFactorsPartitionBuilder;
 import io.cdap.plugin.successfactors.source.service.SuccessFactorsService;
 import io.cdap.plugin.successfactors.source.transport.SuccessFactorsTransporter;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -56,6 +58,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.annotation.Nullable;
 
 /**
@@ -126,8 +129,7 @@ public class SuccessFactorsSource extends BatchSource<LongWritable, StructuredRe
   @Nullable
   private Schema getOutputSchema(FailureCollector failureCollector) {
     if (config.getConnection() != null) {
-      SuccessFactorsTransporter transporter = new SuccessFactorsTransporter(config.getConnection().getUsername(),
-                                                                            config.getConnection().getPassword());
+      SuccessFactorsTransporter transporter = new SuccessFactorsTransporter(config.getConnection());
       SuccessFactorsService successFactorsServices = new SuccessFactorsService(config, transporter);
       try {
         //validate if the given parameters form a valid SuccessFactors URL.
@@ -157,8 +159,21 @@ public class SuccessFactorsSource extends BatchSource<LongWritable, StructuredRe
     errMsg = ResourceConstants.ERR_ODATA_ENTITY_FAILURE.getMsgForKeyWithCode(errMsg);
     switch (ose.getErrorCode()) {
       case HttpURLConnection.HTTP_UNAUTHORIZED:
-        failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsPluginConfig.UNAME);
-        failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsPluginConfig.PASSWORD);
+        if (config.getConnection().getAuthType().equals(SuccessFactorsConnectorConfig.BASIC_AUTH)) {
+          failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsPluginConfig.UNAME);
+          failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsPluginConfig.PASSWORD);
+        } else {
+          failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsConnectorConfig.COMPANY_ID);
+          failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsConnectorConfig.CLIENT_ID);
+          if (config.getConnection().getAssertionTokenType().equals(SuccessFactorsConnectorConfig.ENTER_TOKEN)) {
+            failureCollector.addFailure(errMsg, null).
+              withConfigProperty(SuccessFactorsConnectorConfig.ASSERTION_TOKEN);
+          } else {
+            failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsConnectorConfig.PRIVATE_KEY);
+            failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsConnectorConfig.USER_ID);
+            failureCollector.addFailure(errMsg, null).withConfigProperty(SuccessFactorsConnectorConfig.TOKEN_URL);
+          }
+        }
         break;
       case HttpURLConnection.HTTP_FORBIDDEN:
       case ExceptionParser.NO_VERSION_FOUND:

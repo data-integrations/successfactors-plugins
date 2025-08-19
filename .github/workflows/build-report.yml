@@ -1,4 +1,4 @@
-# Copyright © 2022 Cask Data, Inc.
+# Copyright © 2025 Cask Data, Inc.
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
 #  the License at
@@ -11,15 +11,15 @@
 
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-# Note: Any changes to this workflow would be used only after merging into develop.
-name: Build with unit tests
+# Note: Any changes to this workflow would be used only after merging into develop
+name: Build Unit Tests Report
 
 on:
-  push:
-    branches: [ develop, release/** ]
-  pull_request:
-    branches: [ develop, release/** ]
-    types: [opened, synchronize, reopened, labeled]
+  workflow_run:
+    workflows:
+      - Build with unit tests
+    types:
+      - completed
 
 permissions:
   actions: read    # Allows reading workflow run information
@@ -28,34 +28,20 @@ permissions:
 
 jobs:
   build:
-    runs-on: k8s-runner-build
+    runs-on: ubuntu-latest
 
     if: ${{ github.event.workflow_run.conclusion != 'skipped' }}
 
     steps:
       # Pinned 1.0.0 version
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: marocchino/action-workflow_run-status@54b6e87d6cb552fc5f36dbe9a722a6048725917a
 
-      - name: Cache
-        uses: actions/cache@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ github.workflow }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-${{ github.workflow }}
-
-      - name: Build with Maven
-        run: mvn clean test -fae -T 2 -B -V -DcloudBuild -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
-      - name: Archive build artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: Build debug files
-          path: |
-            **/target/rat.txt
-            **/target/surefire-reports/*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: artifacts/
 
       - name: Surefire Report
         # Pinned 3.5.2 version
@@ -66,4 +52,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           detailed_summary: true
           commit: ${{ github.event.workflow_run.head_sha }}
-          check_name: Test Report
+          check_name: Build Test Report

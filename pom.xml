@@ -40,7 +40,7 @@
     <jmockit.version>1.41</jmockit.version>
     <junit.version>4.12</junit.version>
     <gcs.client.version>2.0.0</gcs.client.version>
-    <okhttp3.version>4.9.1</okhttp3.version>
+    <okhttp3.version>4.9.2</okhttp3.version>
     <httpclient.version>4.5.14</httpclient.version>
     <apache.olingo.v2>2.0.0</apache.olingo.v2>
     <wiremock.version>2.27.2</wiremock.version>
